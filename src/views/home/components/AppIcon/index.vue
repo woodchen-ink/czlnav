@@ -12,6 +12,7 @@ interface Prop {
   iconTextInfoHideDescription: boolean
   iconTextIconHideTitle: boolean
   style: PanelPanelConfigStyleEnum
+  'data-umami-event'?: string
 }
 
 const props = withDefaults(defineProps<Prop>(), {
@@ -41,6 +42,7 @@ const textColor = computed(() => {
       v-if="style === PanelPanelConfigStyleEnum.info"
       class="app-icon-info w-full rounded-2xl  transition-all duration-200 hover:shadow-[0_0_20px_10px_rgba(0,0,0,0.2)] flex"
       :style="{ background: itemInfo?.icon?.backgroundColor || defaultBackground }"
+      v-bind="{ 'data-umami-event': props['data-umami-event'] }"
     >
       <!-- 图标 -->
       <div class="app-icon-info-icon w-[70px] h-[70px]">
@@ -72,6 +74,7 @@ const textColor = computed(() => {
       <div
         class="app-icon-small-icon overflow-hidden rounded-2xl sunpanel w-[70px] h-[70px] mx-auto rounded-2xl transition-all duration-200 hover:shadow-[0_0_20px_10px_rgba(0,0,0,0.2)]"
         :title="itemInfo?.description"
+        v-bind="{ 'data-umami-event': props['data-umami-event'] }"
       >
         <ItemIcon :item-icon="itemInfo?.icon" />
       </div>

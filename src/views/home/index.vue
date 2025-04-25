@@ -410,6 +410,7 @@ function handleAddItem(itemIconGroupId?: number) {
                       :icon-text-icon-hide-title="panelState.panelConfig.iconTextIconHideTitle || false"
                       :style="0"
                       @click="handleItemClick(itemGroupIndex, item)"
+                      :data-umami-event="`nav_${item.title}`"
                     />
                   </div>
 
@@ -447,6 +448,7 @@ function handleAddItem(itemIconGroupId?: number) {
                       :icon-text-icon-hide-title="panelState.panelConfig.iconTextIconHideTitle || false"
                       :style="1"
                       @click="handleItemClick(itemGroupIndex, item)"
+                      :data-umami-event="`nav_${item.title}`"
                     />
                   </div>
 
