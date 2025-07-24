@@ -7,10 +7,7 @@ import CategoryNavStyles from "@/components/CategoryNavStyles";
 // import CategoryIcon from "@/components/CategoryIcon";
 import { Prisma } from "@prisma/client";
 
-// 强制动态渲染，避免构建时数据库查询
-export const dynamic = 'force-dynamic';
-
-// 设置页面缓存，提高访问速度
+// 设置 ISR 缓存 - 页面将在首次访问时生成，然后缓存1小时
 export const revalidate = 3600; // 1小时重新验证
 
 // 获取所有分类及其网站
