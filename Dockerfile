@@ -36,6 +36,10 @@ COPY prisma/init.sql ./prisma/init.sql
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV DATABASE_URL="file:/tmp/build.db"
+
+# 创建临时数据库和表结构用于构建
+RUN npx prisma migrate dev --name init --skip-generate || npx prisma db push
+
 RUN npm run build
 
 # 运行阶段
