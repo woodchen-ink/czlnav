@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id             Int       @id @default(autoincrement())
+  name           String    @unique
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  slug           String    @unique
+  description    String?
+  icon           String?
+  sortOrder      Int       @default(0)
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String?
+  services       Service[]
+}
+
+model Service {
+  id          Int           @id @default(autoincrement())
+  name        String        
+  url         String        
+  description String        
+  icon        String?
+  clickCount  Int           @default(0)
+  categoryId  Int
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  category    Category      @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([name])
+  @@index([clickCount])
+  @@index([sortOrder])
+}
+
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+}

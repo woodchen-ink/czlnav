@@ -1,0 +1,36 @@
+services:
+  czlnav:
+    image: woodchen/czlnav:latest
+    container_name: czlnav
+    ports:
+      - "3000:3000"
+    environment:
+      # 应用基础配置
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+
+      # 统一的应用访问地址（修改为你的域名）
+      - APP_URL=http://localhost:3000
+
+      # CZL Connect OAuth2 配置
+      # 请在生产环境中设置自己的客户端ID和密钥
+      # 回调地址自动根据APP_URL设置为 {APP_URL}/api/auth/callback
+      - CZL_CONNECT_CLIENT_ID=client_83224568
+      - CZL_CONNECT_CLIENT_SECRET=1105e282caf1e3b3334c43e6d9ce5c817ba2e45eb9fcb19e6e7701543a51755e
+
+    volumes:
+      - ./data:/app/data
+      - ./data/uploads:/app/public/uploads
+    restart: always
+    # 健康检查
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/api/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3

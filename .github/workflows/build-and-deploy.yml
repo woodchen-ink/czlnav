@@ -1,0 +1,108 @@
+name: Build and Deploy CZL Nav
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  IMAGE_NAME: czlnav
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: woodchen
+          password: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Generate metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: woodchen/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64
+          build-args: |
+            BUILD_ID=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: root
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            # 确保数据目录存在
+            mkdir -p /opt/data/uploads
+
+            # 切换到部署目录
+            cd /opt/1panel/docker/compose/czlnav
+
+            # 拉取最新镜像
+            docker-compose pull
+
+            # 重启服务
+            docker-compose down
+            docker-compose up -d
+
+            # 清理旧镜像
+            docker image prune -f
+
+            # 等待服务启动
+            echo "等待服务启动..."
+            sleep 15
+
+            # 检查容器状态
+            if docker-compose ps | grep -q "Up"; then
+              echo "✅ 服务已启动"
+              
+              # 检查是否需要初始化系统（通过检查数据库是否为空）
+              echo "🔄 检查系统初始化状态..."
+              
+              # 尝试调用初始化API（如果已经初始化，这个调用是安全的）
+              curl -f http://localhost:3000/api/init || echo "初始化API调用完成"
+              
+              echo "✅ 部署成功！"
+            else
+              echo "❌ 部署失败，检查容器日志:"
+              docker-compose logs --tail=50
+              exit 1
+            fi
