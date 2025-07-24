@@ -70,9 +70,6 @@ jobs:
           username: root
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # 确保数据目录存在
-            mkdir -p /opt/data/uploads
-
             # 切换到部署目录
             cd /opt/1panel/docker/compose/czlnav
 
@@ -82,27 +79,3 @@ jobs:
             # 重启服务
             docker-compose down
             docker-compose up -d
-
-            # 清理旧镜像
-            docker image prune -f
-
-            # 等待服务启动
-            echo "等待服务启动..."
-            sleep 15
-
-            # 检查容器状态
-            if docker-compose ps | grep -q "Up"; then
-              echo "✅ 服务已启动"
-              
-              # 检查是否需要初始化系统（通过检查数据库是否为空）
-              echo "🔄 检查系统初始化状态..."
-              
-              # 尝试调用初始化API（如果已经初始化，这个调用是安全的）
-              curl -f http://localhost:3000/api/init || echo "初始化API调用完成"
-              
-              echo "✅ 部署成功！"
-            else
-              echo "❌ 部署失败，检查容器日志:"
-              docker-compose logs --tail=50
-              exit 1
-            fi
