@@ -1,10 +1,6 @@
 /** @type {import('next').NextConfig} */
 const config = {
   output: "standalone",
-  // 实验性功能：跳过构建时的静态生成
-  experimental: {
-    isrFlushToDisk: false,
-  },
   images: {
     // 从 APP_URL 提取域名，如果没有则允许所有
     remotePatterns: process.env.APP_URL 

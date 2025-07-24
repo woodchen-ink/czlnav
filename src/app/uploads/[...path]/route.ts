@@ -11,8 +11,9 @@ export async function GET(
     // 获取参数
     const { path } = await context.params;
     
-    // 构建文件路径
-    const filePath = join(process.cwd(), "public", "uploads", ...path);
+    // 构建文件路径 - 优先使用环境变量，兼容开发和生产环境
+    const baseDir = process.env.NODE_ENV === 'production' ? '/app' : process.cwd();
+    const filePath = join(baseDir, "public", "uploads", ...path);
     
     // 检查文件是否存在
     const fileStats = await stat(filePath);
@@ -43,6 +44,9 @@ export async function GET(
         break;
       case 'svg':
         contentType = 'image/svg+xml';
+        break;
+      case 'ico':
+        contentType = 'image/x-icon';
         break;
     }
     

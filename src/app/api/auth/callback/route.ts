@@ -4,10 +4,13 @@ import {
   getUserInfo,
   setAuthCookies,
 } from "@/utils/czl-auth";
+import { env } from "@/lib/env";
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams, origin } = new URL(request.url);
+    const { searchParams } = new URL(request.url);
+    // 使用环境变量中的APP_URL而不是request.url的origin
+    const origin = env.APP_URL;
     const code = searchParams.get("code");
     const state = searchParams.get("state");
     const error = searchParams.get("error");
@@ -57,7 +60,8 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("OAuth callback error:", error);
-    const { origin } = new URL(request.url);
+    // 使用环境变量中的APP_URL而不是request.url的origin
+    const origin = env.APP_URL;
     return NextResponse.redirect(`${origin}/admin/login?error=callback_error`);
   }
 }
