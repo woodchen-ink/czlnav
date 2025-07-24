@@ -35,6 +35,7 @@ COPY prisma/init.sql ./prisma/init.sql
 # 构建应用
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV DATABASE_URL="file:/tmp/build.db"
 RUN npm run build
 
 # 运行阶段
