@@ -7,27 +7,34 @@ import CategoryNavStyles from "@/components/CategoryNavStyles";
 // import CategoryIcon from "@/components/CategoryIcon";
 import { Prisma } from "@prisma/client";
 
-// 强制动态渲染，避免构建时数据库查询
-export const dynamic = 'force-dynamic';
+// 使用ISR缓存 - 构建时可能为空，运行时获取真实数据
+export const revalidate = 3600; // 1小时重新验证
 
 // 获取所有分类及其网站
 async function getCategoriesWithServices(): Promise<Category[]> {
-  const categories = await prisma.category.findMany({
-    include: {
-      services: {
-        take: 12,
-        orderBy: [
-          { sortOrder: "asc" },
-          { clickCount: "desc" },
-        ] as Prisma.ServiceOrderByWithRelationInput[],
+  try {
+    // 构建时如果数据库不可用，返回空数组
+    const categories = await prisma.category.findMany({
+      include: {
+        services: {
+          take: 12,
+          orderBy: [
+            { sortOrder: "asc" },
+            { clickCount: "desc" },
+          ] as Prisma.ServiceOrderByWithRelationInput[],
+        },
       },
-    },
-    orderBy: {
-      sortOrder: "asc",
-    } as Prisma.CategoryOrderByWithRelationInput,
-  });
+      orderBy: {
+        sortOrder: "asc",
+      } as Prisma.CategoryOrderByWithRelationInput,
+    });
 
-  return categories as unknown as Category[];
+    return categories as unknown as Category[];
+  } catch {
+    // 构建时数据库可能不可用，返回空数组让构建成功
+    console.log("Database not available during build, returning empty array");
+    return [];
+  }
 }
 
 export default async function Home() {
