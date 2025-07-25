@@ -57,8 +57,34 @@ export default async function Home() {
         />
       </div>
 
-      {/* 暗色蒙版和模糊效果 */}
-      <div className="fixed inset-0 z-[-1] bg-gradient-to-br from-black/40 via-black/50 to-black/60 backdrop-blur-sm"></div>
+      {/* 暗色蒙版和模糊效果 - 增强沉浸式科技氛围 */}
+      <div className="fixed inset-0 z-[-1] bg-gradient-to-br from-black/50 via-black/60 to-black/70 backdrop-blur-md">
+        {/* 科技网格背景 */}
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `
+            linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px'
+        }}></div>
+        
+        {/* 动态光晕效果 */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-radial from-blue-500/20 via-purple-500/10 to-transparent rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-radial from-pink-500/20 via-orange-500/10 to-transparent rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        
+        {/* SVG科技装饰元素 */}
+        <svg className="absolute top-10 right-10 w-32 h-32 opacity-20" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="20" className="tech-svg-outline" />
+          <circle cx="50" cy="50" r="30" className="tech-svg-outline" />
+          <line x1="30" y1="50" x2="70" y2="50" className="tech-svg-outline" />
+          <line x1="50" y1="30" x2="50" y2="70" className="tech-svg-outline" />
+        </svg>
+        
+        <svg className="absolute bottom-20 left-20 w-24 h-24 opacity-15" viewBox="0 0 100 100">
+          <polygon points="50,15 85,75 15,75" className="tech-svg-outline" />
+          <circle cx="50" cy="50" r="5" fill="rgba(255,255,255,0.3)" />
+        </svg>
+      </div>
 
       {/* 浮动侧边栏 - 向左调整，避免覆盖主内容 */}
       <div className="hidden xl:block fixed left-[max(16px,calc(50%-720px))] top-[100px] w-60 z-10">
@@ -82,7 +108,7 @@ export default async function Home() {
                 <a
                   key={category.id}
                   href={`#category-${category.slug}`}
-                  className="category-nav-link loaded group flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white/10 hover:shadow-lg border border-transparent hover:border-white/20 relative overflow-hidden backdrop-blur-sm"
+                  className="category-nav-link loaded menu-item group flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 border border-transparent hover:border-white/20 relative overflow-hidden backdrop-blur-sm tech-particles"
                   style={{
                     animationDelay: `${index * 50}ms`,
                   }}
@@ -179,7 +205,7 @@ export default async function Home() {
                   <a
                     key={category.id}
                     href={`#category-${category.slug}`}
-                    className="category-nav-link loaded group flex flex-col items-center gap-2 p-4 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-lg transition-all duration-200 hover:shadow-lg backdrop-blur-sm relative z-10"
+                    className="category-nav-link loaded menu-item group flex flex-col items-center gap-2 p-4 bg-white/10 border border-white/20 hover:border-white/40 rounded-lg transition-all duration-200 hover:shadow-lg backdrop-blur-sm relative z-10 tech-particles"
                     data-category-id={`category-${category.slug}`}
                     style={{
                       animationDelay: `${index * 30}ms`,
