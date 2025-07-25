@@ -139,9 +139,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     });
 
     // 刷新首页缓存
-    revalidatePath('/');
+    revalidatePath("/");
     // 刷新所有分类详情页缓存
-    revalidatePath('/category/[slug]', 'page');
+    revalidatePath("/category/[slug]", "page");
 
     return successResponse(category, "更新分类成功");
   } catch (error) {
@@ -199,9 +199,9 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     });
 
     // 刷新首页缓存
-    revalidatePath('/');
+    revalidatePath("/");
     // 刷新所有分类详情页缓存
-    revalidatePath('/category/[slug]', 'page');
+    revalidatePath("/category/[slug]", "page");
 
     return successResponse(null, "删除分类成功");
   } catch (error) {

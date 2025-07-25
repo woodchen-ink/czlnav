@@ -3,6 +3,7 @@
 import Image from "next/image";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useServiceClick } from "@/hooks/useServiceClick";
+import GlassEffects from "./GlassEffects";
 
 // 定义Service类型
 type Service = {
@@ -102,11 +103,14 @@ const ServiceCard = React.memo(function ServiceCard({
   const cardContent = useMemo(
     () => (
       <div
-        className="bg-white bg-opacity-80 rounded-lg shadow-sm outline-2 outline-none hover:outline-primary hover:bg-muted/50 transition-all duration-300 overflow-hidden cursor-pointer"
+        className="glass-container bg-white/15 backdrop-blur-xl border-0 rounded-lg shadow-xl outline-2 outline-none hover:outline-white/40 hover:bg-white/25 transition-all duration-300 cursor-pointer"
         onClick={onClick}
         title={service.description || service.name}
       >
-        <div className="p-3 flex items-center space-x-2">
+        <div className="corner-light-br"></div>
+        <div className="edge-glow"></div>
+        <div className="shimmer-effect"></div>
+        <div className="p-3 flex items-center space-x-2 relative z-10">
           {/* 左侧图标 */}
           <div className="w-10 h-10 relative flex-shrink-0">
             {/* 加载中显示loading样式 */}
@@ -136,10 +140,10 @@ const ServiceCard = React.memo(function ServiceCard({
 
           {/* 右侧内容 */}
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-gray-900 truncate">
+            <h3 className="font-medium text-white/95 truncate">
               {service.name}
             </h3>
-            <p className="text-sm text-gray-400 line-clamp-1">
+            <p className="text-sm text-white/70 line-clamp-1">
               {service.description}
             </p>
           </div>
@@ -149,7 +153,12 @@ const ServiceCard = React.memo(function ServiceCard({
     [service, isImageLoaded, hasError, onClick, renderInitial]
   );
 
-  return cardContent;
+  return (
+    <>
+      <GlassEffects />
+      {cardContent}
+    </>
+  );
 });
 
 // 添加显示名称，便于调试

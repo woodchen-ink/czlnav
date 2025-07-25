@@ -4,8 +4,10 @@ import { Category } from "@/types";
 import SmoothScrollScript from "@/components/SmoothScrollScript";
 import BackToTopButton from "@/components/BackToTopButton";
 import CategoryNavStyles from "@/components/CategoryNavStyles";
+import GlassEffects from "@/components/GlassEffects";
 // import CategoryIcon from "@/components/CategoryIcon";
 import { Prisma } from "@prisma/client";
+import Image from "next/image";
 
 // 使用ISR缓存 - 构建时可能为空，运行时获取真实数据
 export const revalidate = 60; // 60秒重新验证
@@ -41,19 +43,36 @@ export default async function Home() {
   const categories = await getCategoriesWithServices();
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen">
+      {/* 背景图片 */}
+      <div className="fixed inset-0 z-[-2]">
+        <Image
+          src="https://random-api.czl.net/pic/normal"
+          alt="background"
+          width={1920}
+          height={1080}
+          className="w-full h-full object-cover"
+          priority
+          unoptimized
+        />
+      </div>
+
+      {/* 暗色蒙版和模糊效果 */}
+      <div className="fixed inset-0 z-[-1] bg-gradient-to-br from-black/40 via-black/50 to-black/60 backdrop-blur-sm"></div>
+
       {/* 浮动侧边栏 - 向左调整，避免覆盖主内容 */}
       <div className="hidden xl:block fixed left-[max(16px,calc(50%-720px))] top-[100px] w-60 z-10">
-        <div className="sidebar-container bg-card/95 backdrop-blur-md border border-border rounded-xl shadow-lg overflow-hidden">
+        <div className="glass-container bg-white/10 backdrop-blur-xl border-0 rounded-xl shadow-2xl">
+          <div className="corner-light-br"></div>
+          <div className="edge-glow"></div>
+          <div className="shimmer-effect"></div>
           {/* 侧边栏标题 */}
-          <div className="bg-gradient-to-r from-primary/10 to-accent/10 px-6 py-4 border-b border-border">
-            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+          <div className="bg-white/5 backdrop-blur-sm px-6 py-4 border-b border-white/10 relative z-10">
+            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-white/80 animate-pulse"></div>
               分类导航
             </h2>
-            <p className="text-xs text-muted-foreground mt-1">
-              选择分类快速跳转
-            </p>
+            <p className="text-xs text-white/70 mt-1">选择分类快速跳转</p>
           </div>
 
           {/* 分类列表 */}
@@ -63,7 +82,7 @@ export default async function Home() {
                 <a
                   key={category.id}
                   href={`#category-${category.slug}`}
-                  className="category-nav-link loaded group flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-muted/50 hover:shadow-sm border border-transparent hover:border-muted relative overflow-hidden"
+                  className="category-nav-link loaded group flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white/10 hover:shadow-lg border border-transparent hover:border-white/20 relative overflow-hidden backdrop-blur-sm"
                   style={{
                     animationDelay: `${index * 50}ms`,
                   }}
@@ -82,10 +101,10 @@ export default async function Home() {
 
                   {/* 分类信息 */}
                   <div className="flex-1 min-w-0">
-                    <span className="category-name block text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200 truncate">
+                    <span className="category-name block text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-200 truncate">
                       {category.name}
                     </span>
-                    <span className="block text-xs text-muted-foreground mt-0.5">
+                    <span className="block text-xs text-white/60 mt-0.5">
                       {category.services?.length || 0} 个网站
                     </span>
                   </div>
@@ -115,8 +134,8 @@ export default async function Home() {
           </div>
 
           {/* 底部操作区 */}
-          <div className="border-t border-border bg-muted/20 p-4">
-            <BackToTopButton className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground bg-background hover:bg-muted border border-border hover:border-primary/30 rounded-lg transition-all duration-200 group">
+          <div className="border-t border-white/10 bg-white/5 p-4 relative z-10">
+            <BackToTopButton className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-medium text-white/70 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-lg transition-all duration-200 group backdrop-blur-sm">
               <svg
                 className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform duration-200"
                 fill="none"
@@ -140,16 +159,17 @@ export default async function Home() {
       <div className="container mx-auto px-4 py-8 max-w-[960px]">
         {/* 移动端分类导航 */}
         <div className="xl:hidden mb-10">
-          <div className="bg-card/95 backdrop-blur-md border border-border rounded-xl shadow-lg overflow-hidden">
+          <div className="glass-container bg-white/10 backdrop-blur-xl border-0 rounded-xl shadow-2xl">
+            <div className="corner-light-br"></div>
+            <div className="edge-glow"></div>
+            <div className="shimmer-effect"></div>
             {/* 移动端标题 */}
-            <div className="bg-gradient-to-r from-primary/10 to-accent/10 px-6 py-4 border-b border-border">
-              <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+            <div className="bg-white/5 backdrop-blur-sm px-6 py-4 border-b border-white/10 relative z-10">
+              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-white/80 animate-pulse"></div>
                 分类导航
               </h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                选择分类快速跳转
-              </p>
+              <p className="text-sm text-white/70 mt-1">选择分类快速跳转</p>
             </div>
 
             {/* 移动端分类网格 */}
@@ -159,7 +179,7 @@ export default async function Home() {
                   <a
                     key={category.id}
                     href={`#category-${category.slug}`}
-                    className="category-nav-link loaded group flex flex-col items-center gap-2 p-4 bg-background hover:bg-muted/50 border border-border hover:border-primary/30 rounded-lg transition-all duration-200 hover:shadow-md"
+                    className="category-nav-link loaded group flex flex-col items-center gap-2 p-4 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-lg transition-all duration-200 hover:shadow-lg backdrop-blur-sm relative z-10"
                     data-category-id={`category-${category.slug}`}
                     style={{
                       animationDelay: `${index * 30}ms`,
@@ -176,11 +196,8 @@ export default async function Home() {
 
                     {/* 分类名称 */}
                     <div className="text-center">
-                      <span className="block text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200">
+                      <span className="block text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-200">
                         {category.name}
-                      </span>
-                      <span className="block text-xs text-muted-foreground mt-0.5">
-                        {category.services?.length || 0}个
                       </span>
                     </div>
                   </a>
@@ -204,26 +221,34 @@ export default async function Home() {
 
       {/* 移动端返回顶部按钮 */}
       <div className="xl:hidden fixed bottom-6 right-6 z-50">
-        <BackToTopButton className="group flex items-center justify-center w-14 h-14 rounded-2xl bg-card/95 backdrop-blur-md border border-border shadow-xl hover:shadow-2xl text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 group-hover:-translate-y-0.5 transition-transform duration-200"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 10l7-7m0 0l7 7m-7-7v18"
-            />
-          </svg>
-        </BackToTopButton>
+        <div className="glass-container group w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-xl border-0 shadow-2xl hover:shadow-3xl hover:bg-white/25 transition-all duration-300 hover:scale-105">
+          <div className="corner-light-br"></div>
+          <div className="edge-glow"></div>
+          <div className="shimmer-effect"></div>
+          <BackToTopButton className="flex items-center justify-center w-full h-full text-white/70 hover:text-white relative z-10">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 group-hover:-translate-y-0.5 transition-transform duration-200"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 10l7-7m0 0l7 7m-7-7v18"
+              />
+            </svg>
+          </BackToTopButton>
+        </div>
       </div>
 
       {/* 添加分类导航样式 */}
       <CategoryNavStyles />
+
+      {/* 添加玻璃光效样式 */}
+      <GlassEffects />
 
       {/* 添加平滑滚动功能 */}
       <SmoothScrollScript />

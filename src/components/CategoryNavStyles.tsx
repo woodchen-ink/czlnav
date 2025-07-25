@@ -4,15 +4,21 @@ export default function CategoryNavStyles() {
   return (
     <style jsx global>{`
       .category-nav-link.active-category {
-        background: hsl(var(--muted));
-        border-color: hsl(var(--primary) / 0.3);
-        box-shadow: 0 2px 8px hsl(var(--primary) / 0.1);
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
         transform: translateX(4px);
       }
 
       .category-nav-link.active-category .category-name {
-        color: hsl(var(--primary));
+        color: rgba(255, 255, 255, 1);
         font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      .category-nav-link.active-category span:not(.category-name) {
+        color: rgba(255, 255, 255, 0.8) !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       }
 
       .category-nav-link.active-category .category-icon-container {

@@ -11,23 +11,26 @@ const clearCache = async () => {
     // 等待应用启动
     console.log("等待应用启动...");
     await new Promise(resolve => setTimeout(resolve, 3000));
-    
+
     const response = await fetch("http://localhost:3000/api/admin/cache", {
       method: "DELETE",
     });
-    
+
     if (response.ok) {
       console.log("✅ 启动时缓存清理成功");
     } else {
       console.log("⚠️ 启动时缓存清理失败，但不影响应用启动");
     }
   } catch (error) {
-    console.log("⚠️ 启动时缓存清理失败（可能是应用尚未完全启动），但不影响应用启动:", error.message);
+    console.log(
+      "⚠️ 启动时缓存清理失败（可能是应用尚未完全启动），但不影响应用启动:",
+      error.message
+    );
   }
 };
 
 // 如果是在 Node.js 环境中直接运行
-if (typeof require !== 'undefined') {
+if (typeof require !== "undefined") {
   clearCache();
 }
 

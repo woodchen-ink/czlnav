@@ -5,11 +5,11 @@ interface LogoProps {
   className?: string;
 }
 
-export default function Logo({ 
-  width = 40, 
-  height = 40, 
-  fill = "currentColor", 
-  className = "" 
+export default function Logo({
+  width = 40,
+  height = 40,
+  fill = "currentColor",
+  className = "",
 }: LogoProps) {
   return (
     <svg
@@ -20,7 +20,8 @@ export default function Logo({
       className={className}
     >
       <g transform="translate(0,300) scale(0.1,-0.1)" fill={fill} stroke="none">
-        <path d="M1355 2994 c-229 -33 -374 -77 -544 -164 -289 -150 -506 -371 -651
+        <path
+          d="M1355 2994 c-229 -33 -374 -77 -544 -164 -289 -150 -506 -371 -651
 -665 -117 -238 -154 -399 -154 -665 0 -266 43 -448 159 -678 213 -419 598
 -707 1070 -799 125 -24 405 -24 530 0 304 60 585 207 795 417 210 210 357 491
 417 795 24 125 24 405 0 530 -30 151 -65 254 -137 400 -145 293 -362 515 -650
@@ -39,7 +40,8 @@ export default function Logo({
 -5z m-712 -222 c-33 -76 -25 -73 -189 -73 l-149 0 25 50 25 50 150 0 150 0
 -12 -27z m612 22 c0 -2 -10 -25 -22 -50 l-22 -45 -153 0 -153 0 25 50 25 50
 150 0 c83 0 150 -2 150 -5z m700 -201 c0 -20 -78 -107 -120 -134 -96 -62 -70
--60 -912 -60 l-768 0 50 100 50 100 850 0 c468 0 850 -3 850 -6z"/>
+-60 -912 -60 l-768 0 50 100 50 100 850 0 c468 0 850 -3 850 -6z"
+        />
       </g>
     </svg>
   );

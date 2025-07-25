@@ -123,9 +123,9 @@ export async function POST(request: NextRequest) {
     });
 
     // 刷新首页缓存
-    revalidatePath('/');
+    revalidatePath("/");
     // 刷新所有分类详情页缓存
-    revalidatePath('/category/[slug]', 'page');
+    revalidatePath("/category/[slug]", "page");
 
     return successResponse(category, "创建分类成功");
   } catch (error) {
@@ -172,9 +172,9 @@ export async function PUT(request: NextRequest) {
     });
 
     // 刷新首页缓存
-    revalidatePath('/');
+    revalidatePath("/");
     // 刷新所有分类详情页缓存
-    revalidatePath('/category/[slug]', 'page');
+    revalidatePath("/category/[slug]", "page");
 
     return successResponse(afterCategories, "更新分类排序成功");
   } catch (error) {

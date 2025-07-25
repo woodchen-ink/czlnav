@@ -155,9 +155,9 @@ export async function POST(request: NextRequest) {
     };
 
     // 刷新首页缓存
-    revalidatePath('/');
+    revalidatePath("/");
     // 刷新所有分类详情页缓存
-    revalidatePath('/category/[slug]', 'page');
+    revalidatePath("/category/[slug]", "page");
 
     return successResponse(formattedService, "创建服务成功");
   } catch (error) {

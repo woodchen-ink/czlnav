@@ -22,7 +22,7 @@ export default function CategorySection({
     >
       <div className="flex flex-wrap items-center mb-4 pb-2">
         <div className="flex-shrink-0 mr-4">
-          <h2 className="font-bold text-2xl text-gray-800 whitespace-nowrap">
+          <h2 className="font-bold text-2xl text-white whitespace-nowrap">
             <Link href={`/c/${category.slug}`} className="-space-y-2">
               <span className="relative -top-0.5">{category.name}</span>
               <span className="bg-brand-200 h-2 block w-full"></span>

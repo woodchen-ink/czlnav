@@ -3,20 +3,20 @@ const config = {
   output: "standalone",
   images: {
     // 从 APP_URL 提取域名，如果没有则允许所有
-    remotePatterns: process.env.APP_URL 
+    remotePatterns: process.env.APP_URL
       ? [
           {
-            protocol: new URL(process.env.APP_URL).protocol.replace(':', ''),
+            protocol: new URL(process.env.APP_URL).protocol.replace(":", ""),
             hostname: new URL(process.env.APP_URL).hostname,
           },
           // 同时支持开发环境
-          { protocol: 'http', hostname: 'localhost' },
-          { protocol: 'https', hostname: 'localhost' },
+          { protocol: "http", hostname: "localhost" },
+          { protocol: "https", hostname: "localhost" },
         ]
       : [
           // 默认配置：允许所有图片（开发环境友好）
-          { protocol: 'https', hostname: '**' },
-          { protocol: 'http', hostname: '**' },
+          { protocol: "https", hostname: "**" },
+          { protocol: "http", hostname: "**" },
         ],
     unoptimized: process.env.NODE_ENV === "development",
   },

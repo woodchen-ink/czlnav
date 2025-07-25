@@ -48,9 +48,9 @@ export async function POST(request: NextRequest) {
     await Promise.all(updatePromises);
 
     // 刷新首页缓存
-    revalidatePath('/');
+    revalidatePath("/");
     // 刷新所有分类详情页缓存
-    revalidatePath('/category/[slug]', 'page');
+    revalidatePath("/category/[slug]", "page");
 
     return successResponse(null, "批量更新排序成功");
   } catch (error) {

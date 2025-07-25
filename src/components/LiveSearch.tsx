@@ -102,7 +102,11 @@ export default function LiveSearch() {
         handleResultClick(results[selectedIndex]);
       } else if (results.length === 0 && !loading) {
         // 如果没有搜索结果且不在加载中，跳转到Google搜索
-        window.open(`https://www.google.com/search?q=${encodeURIComponent(query.trim())}`, "_blank", "noopener,noreferrer");
+        window.open(
+          `https://www.google.com/search?q=${encodeURIComponent(query.trim())}`,
+          "_blank",
+          "noopener,noreferrer"
+        );
       } else {
         // 否则跳转到搜索结果页
         router.push(`/search?q=${encodeURIComponent(query.trim())}`);
@@ -116,7 +120,11 @@ export default function LiveSearch() {
     if (query.trim()) {
       if (results.length === 0 && !loading) {
         // 如果没有搜索结果且不在加载中，跳转到Google搜索
-        window.open(`https://www.google.com/search?q=${encodeURIComponent(query.trim())}`, "_blank", "noopener,noreferrer");
+        window.open(
+          `https://www.google.com/search?q=${encodeURIComponent(query.trim())}`,
+          "_blank",
+          "noopener,noreferrer"
+        );
       } else {
         // 否则跳转到搜索结果页
         router.push(`/search?q=${encodeURIComponent(query.trim())}`);
