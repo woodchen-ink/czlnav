@@ -48,26 +48,6 @@ export default function GlassEffects() {
         }
       }
 
-      /* 液态玻璃光效动画 */
-      @keyframes liquid-glow {
-        0%,
-        100% {
-          opacity: 0.6;
-          transform: scale(1) rotate(0deg);
-          filter: blur(0.5px) hue-rotate(0deg);
-        }
-        33% {
-          opacity: 0.9;
-          transform: scale(1.05) rotate(120deg);
-          filter: blur(1px) hue-rotate(60deg);
-        }
-        66% {
-          opacity: 0.7;
-          transform: scale(0.95) rotate(240deg);
-          filter: blur(0.8px) hue-rotate(120deg);
-        }
-      }
-
       @keyframes corner-glow {
         0%,
         100% {
@@ -139,30 +119,6 @@ export default function GlassEffects() {
         z-index: 1;
       }
 
-      /* 第二层：色调遮罩 + 左上角液态光效 */
-      .glass-container::after {
-        content: "";
-        position: absolute;
-        top: -1px;
-        left: -1px;
-        width: 80px;
-        height: 80px;
-        background: radial-gradient(
-          circle at center,
-          rgba(255, 100, 150, 0.8) 0%,
-          rgba(255, 180, 100, 0.6) 30%,
-          rgba(180, 100, 255, 0.4) 60%,
-          transparent 80%
-        );
-        border-radius: inherit;
-        pointer-events: none;
-        z-index: 2;
-        animation: liquid-glow 6s ease-in-out infinite;
-        filter: blur(1px);
-        clip-path: polygon(0 0, 100% 0, 100% 3px, 3px 3px, 3px 100%, 0 100%);
-        mix-blend-mode: overlay;
-      }
-
       /* 第三层：光泽高亮 + 右下角苹果渐变光效 */
       .glass-container .corner-light-br {
         position: absolute;
@@ -180,7 +136,7 @@ export default function GlassEffects() {
         border-radius: inherit;
         pointer-events: none;
         z-index: 3;
-        animation: liquid-glow 8s ease-in-out infinite 3s;
+        animation: corner-glow 6s ease-in-out infinite 3s;
         filter: blur(0.8px);
         clip-path: polygon(
           calc(100% - 3px) 0,
@@ -271,12 +227,6 @@ export default function GlassEffects() {
           0 20px 40px rgba(0, 0, 0, 0.3),
           0 10px 20px rgba(255, 255, 255, 0.1),
           inset 0 1px 0 rgba(255, 255, 255, 0.4);
-      }
-
-      /* 悬停效果增强 */
-      .glass-container:hover::after {
-        animation-duration: 3s;
-        filter: blur(1.5px);
       }
 
       .glass-container:hover .corner-light-br {
