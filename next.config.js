@@ -29,6 +29,16 @@ const config = {
   async headers() {
     return [
       {
+        // 对带hash的静态资源允许长期缓存
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
         // 对上传的静态资源允许缓存
         source: "/uploads/:path*",
         headers: [
@@ -40,7 +50,7 @@ const config = {
       },
       {
         // 对其他路由应用这些头，防止浏览器和CDN缓存
-        source: "/((?!uploads).*)",
+        source: "/((?!_next/static|uploads).*)",
         headers: [
           {
             key: "Cache-Control",

@@ -33,21 +33,31 @@ export async function middleware(request: NextRequest) {
   // 为静态资源添加缓存控制头
   if (
     pathname.startsWith("/_next/static/") ||
-    pathname.startsWith("/static/") ||
+    pathname.startsWith("/uploads/") ||
+    pathname.startsWith("/static/")
+  ) {
+    // 带hash的静态文件可以长期缓存
+    const response = NextResponse.next();
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=31536000, immutable"
+    );
+    return response;
+  }
+
+  // 对其他_next文件和动态资源禁用缓存
+  if (
+    pathname.startsWith("/_next/") ||
     pathname.endsWith(".css") ||
     pathname.endsWith(".js")
   ) {
-    // 创建响应
     const response = NextResponse.next();
-
-    // 添加缓存控制头，防止缓存
     response.headers.set(
       "Cache-Control",
       "no-store, no-cache, must-revalidate, proxy-revalidate"
     );
     response.headers.set("Pragma", "no-cache");
     response.headers.set("Expires", "0");
-
     return response;
   }
 
