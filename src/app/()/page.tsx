@@ -8,7 +8,7 @@ import CategoryNavStyles from "@/components/CategoryNavStyles";
 import { Prisma } from "@prisma/client";
 
 // 使用ISR缓存 - 构建时可能为空，运行时获取真实数据
-export const revalidate = 3600; // 1小时重新验证
+export const revalidate = 60; // 60秒重新验证
 
 // 获取所有分类及其网站
 async function getCategoriesWithServices(): Promise<Category[]> {
