@@ -77,9 +77,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 如果是公开路径，直接放行
+  // 为所有 /admin/ 路径添加强制不缓存的头部
+  const response = NextResponse.next();
+  response.headers.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+  );
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
+  response.headers.set("Surrogate-Control", "no-store");
+
+  // 如果是公开路径，直接放行（但仍保持不缓存头部）
   if (PUBLIC_PATHS.some(path => pathname === path)) {
-    return NextResponse.next();
+    return response;
   }
 
   // 验证管理员身份 - 只检查Token，不查询数据库
@@ -88,11 +98,19 @@ export async function middleware(request: NextRequest) {
   // 如果验证失败，重定向到登录页面
   if (!isAdmin) {
     const url = new URL("/admin/login", request.url);
-    return NextResponse.redirect(url);
+    const redirectResponse = NextResponse.redirect(url);
+    // 确保重定向响应也不被缓存
+    redirectResponse.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+    );
+    redirectResponse.headers.set("Pragma", "no-cache");
+    redirectResponse.headers.set("Expires", "0");
+    return redirectResponse;
   }
 
-  // 验证成功，放行
-  return NextResponse.next();
+  // 验证成功，返回带有不缓存头部的响应
+  return response;
 }
 
 // 配置匹配的路由
