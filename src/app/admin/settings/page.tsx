@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Trash2 } from "lucide-react";
 import { useAdminApp } from "@/components/AdminAppProvider";
 
 interface SettingsFormValues {
@@ -21,6 +21,12 @@ interface SettingsFormValues {
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [clearingCache, setClearingCache] = useState(false);
+  const [cacheInfo, setCacheInfo] = useState<{
+    size: number;
+    totalKeys: number;
+    keys: string[];
+  } | null>(null);
   const [formData, setFormData] = useState<SettingsFormValues>({
     siteName: "",
     siteDescription: "",
@@ -51,7 +57,20 @@ export default function SettingsPage() {
       }
     };
 
+    const fetchCacheInfo = async () => {
+      try {
+        const response = await fetch("/api/admin/cache");
+        const data = await response.json();
+        if (data.success) {
+          setCacheInfo(data.data);
+        }
+      } catch (error) {
+        console.error("获取缓存信息失败:", error);
+      }
+    };
+
     fetchSettings();
+    fetchCacheInfo();
   }, [adminMessage]);
 
   // 处理表单输入变化
@@ -84,6 +103,35 @@ export default function SettingsPage() {
       adminMessage.error("保存设置失败，请稍后重试");
     } finally {
       setSaving(false);
+    }
+  };
+
+  // 清除缓存
+  const handleClearCache = async () => {
+    setClearingCache(true);
+    try {
+      const response = await fetch("/api/admin/cache", {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        adminMessage.success("缓存清理成功");
+        // 重新获取缓存信息
+        const cacheResponse = await fetch("/api/admin/cache");
+        const cacheData = await cacheResponse.json();
+        if (cacheData.success) {
+          setCacheInfo(cacheData.data);
+        }
+      } else {
+        adminMessage.error(data.message || "清理缓存失败");
+      }
+    } catch (error) {
+      console.error("清理缓存失败:", error);
+      adminMessage.error("清理缓存失败，请稍后重试");
+    } finally {
+      setClearingCache(false);
     }
   };
 
@@ -186,6 +234,43 @@ export default function SettingsPage() {
                 placeholder="请输入统计代码（如 Google Analytics、百度统计等）"
                 rows={6}
               />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>缓存管理</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col space-y-2">
+              <div className="text-sm text-muted-foreground">
+                {cacheInfo ? (
+                  <>
+                    <p>缓存项数量: {cacheInfo.size}</p>
+                    <p>总键数: {cacheInfo.totalKeys}</p>
+                    {cacheInfo.keys.length > 0 && (
+                      <p>示例键: {cacheInfo.keys.slice(0, 3).join(", ")}</p>
+                    )}
+                  </>
+                ) : (
+                  <p>加载缓存信息中...</p>
+                )}
+              </div>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleClearCache}
+                disabled={clearingCache}
+                className="w-fit"
+              >
+                {clearingCache ? (
+                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Trash2 className="h-4 w-4 mr-2" />
+                )}
+                清除所有缓存
+              </Button>
             </div>
           </CardContent>
         </Card>

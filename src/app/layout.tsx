@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { getSiteSettings } from "@/utils/settings";
+import { clearCacheOnStartup } from "@/lib/startup-cache-clear";
+
+// 在应用启动时清除缓存
+clearCacheOnStartup();
 
 // 使用动态元数据
 export async function generateMetadata(): Promise<Metadata> {
