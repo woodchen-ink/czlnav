@@ -1,6 +1,23 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,15 +38,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Plus,
-  Edit,
-  Trash2,
-  ArrowUp,
-  ArrowDown,
-  RefreshCw,
-} from "lucide-react";
+import { Plus, Edit, Trash2, RefreshCw, GripVertical } from "lucide-react";
 import Image from "next/image";
 import { useAdminApp } from "@/components/AdminAppProvider";
 
@@ -65,6 +74,102 @@ const truncateText = (text: string | null, maxLength: number = 30): string => {
   return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 };
 
+// 可排序的表格行组件
+interface SortableRowProps {
+  category: Category;
+  onEdit: (category: Category) => void;
+  onDelete: (id: number) => void;
+  onPreview: (icon: string) => void;
+}
+
+const SortableRow: React.FC<SortableRowProps> = ({
+  category,
+  onEdit,
+  onDelete,
+  onPreview,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <TableRow
+      ref={setNodeRef}
+      style={style}
+      className={isDragging ? "bg-muted/50" : ""}
+    >
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <button
+            className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-4 w-4 text-muted-foreground" />
+          </button>
+          {category.id}
+        </div>
+      </TableCell>
+      <TableCell>{category.sortOrder}</TableCell>
+      <TableCell>
+        {category.icon ? (
+          <div
+            className="w-10 h-10 relative border rounded cursor-pointer"
+            onClick={() => onPreview(category.icon!)}
+          >
+            <Image
+              src={category.icon}
+              alt="分类图标"
+              fill
+              className="object-contain rounded"
+              unoptimized={category.icon.endsWith(".svg")}
+            />
+          </div>
+        ) : (
+          <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
+            <Plus className="h-4 w-4 text-gray-400" />
+          </div>
+        )}
+      </TableCell>
+      <TableCell className="font-medium">{category.name}</TableCell>
+      <TableCell>{category.slug}</TableCell>
+      <TableCell>{truncateText(category.description, 30)}</TableCell>
+      <TableCell>
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onEdit(category)}
+            title="编辑"
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onDelete(category.id)}
+            title="删除"
+            className="text-red-600 hover:text-red-700"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+};
+
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -82,6 +187,68 @@ export default function CategoriesPage() {
     seoKeywords: "",
   });
   const { message: adminMessage } = useAdminApp();
+
+  // 拖拽传感器设置
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // 处理拖拽结束事件
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const activeIndex = categories.findIndex(
+      category => category.id === active.id
+    );
+    const overIndex = categories.findIndex(category => category.id === over.id);
+
+    if (activeIndex !== -1 && overIndex !== -1) {
+      const newCategories = arrayMove(categories, activeIndex, overIndex);
+
+      // 更新本地状态
+      setCategories(newCategories);
+
+      // 准备排序更新数据
+      const updates = newCategories.map((category, index) => ({
+        id: category.id,
+        sortOrder: index + 1,
+      }));
+
+      try {
+        // 发送批量更新请求
+        const response = await fetch("/api/admin/categories/reorder", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ updates }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          adminMessage.success("排序更新成功");
+          // 重新获取分类列表以确保数据同步
+          await fetchCategories();
+        } else {
+          adminMessage.error(data.message || "排序更新失败");
+          // 失败时恢复原始顺序
+          await fetchCategories();
+        }
+      } catch (error) {
+        console.error("更新排序失败:", error);
+        adminMessage.error("排序更新失败，请稍后重试");
+        // 失败时恢复原始顺序
+        await fetchCategories();
+      }
+    }
+  };
 
   // 获取分类列表
   const fetchCategories = useCallback(async () => {
@@ -267,142 +434,14 @@ export default function CategoriesPage() {
     }
   };
 
-  // 上移分类
-  const handleMoveUp = async (record: Category) => {
-    try {
-      setLoading(true);
-
-      const currentIndex = categories.findIndex(item => item.id === record.id);
-      if (currentIndex === 0) {
-        adminMessage.info("已经是第一个分类，无法上移");
-        return;
-      }
-
-      const prevCategory = categories[currentIndex - 1];
-      const tempSortOrder = record.sortOrder;
-
-      const updateData = [
-        {
-          id: record.id,
-          sortOrder: Number(prevCategory.sortOrder),
-        },
-        {
-          id: prevCategory.id,
-          sortOrder: Number(tempSortOrder),
-        },
-      ];
-
-      const response = await fetch("/api/admin/categories", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        adminMessage.success("排序更新成功");
-        await fetchCategories();
-      } else {
-        adminMessage.error(data.message || "排序更新失败");
-      }
-    } catch (error) {
-      console.error("上移分类出错:", error);
-      adminMessage.error("上移分类出错");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 下移分类
-  const handleMoveDown = async (record: Category) => {
-    try {
-      setLoading(true);
-
-      const currentIndex = categories.findIndex(item => item.id === record.id);
-      if (currentIndex === categories.length - 1) {
-        adminMessage.info("已经是最后一个分类，无法下移");
-        return;
-      }
-
-      const nextCategory = categories[currentIndex + 1];
-      const tempSortOrder = record.sortOrder;
-
-      const updateData = [
-        {
-          id: record.id,
-          sortOrder: Number(nextCategory.sortOrder),
-        },
-        {
-          id: nextCategory.id,
-          sortOrder: Number(tempSortOrder),
-        },
-      ];
-
-      const response = await fetch("/api/admin/categories", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        adminMessage.success("排序更新成功");
-        await fetchCategories();
-      } else {
-        adminMessage.error(data.message || "排序更新失败");
-      }
-    } catch (error) {
-      console.error("下移分类出错:", error);
-      adminMessage.error("下移分类出错");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 修改排序值
-  const handleSortOrderChange = async (id: number, value: string) => {
-    const numValue = parseInt(value);
-    if (isNaN(numValue) || numValue < 0) return;
-
-    try {
-      setLoading(true);
-
-      const category = categories.find(c => c.id === id);
-      if (!category) return;
-
-      const response = await fetch(`/api/admin/categories/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: category.name,
-          slug: category.slug,
-          description: category.description,
-          icon: category.icon,
-          sortOrder: numValue,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        adminMessage.success("排序更新成功");
-        await fetchCategories();
-      } else {
-        adminMessage.error(data.message || "排序更新失败");
-      }
-    } catch (error) {
-      console.error("修改排序值出错:", error);
-      adminMessage.error("修改排序值出错");
-    } finally {
-      setLoading(false);
+  // 确认删除函数
+  const confirmDelete = (id: number) => {
+    if (
+      window.confirm(
+        "确定要删除这个分类吗？删除后无法恢复，该分类下的网站将失去分类关联。"
+      )
+    ) {
+      handleDelete(id);
     }
   };
 
@@ -416,105 +455,43 @@ export default function CategoriesPage() {
         </Button>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
+      <div className="border rounded-lg">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-20">ID</TableHead>
-                <TableHead className="w-24">排序</TableHead>
+                <TableHead className="w-16">排序</TableHead>
                 <TableHead className="w-16">图标</TableHead>
                 <TableHead>分类名称</TableHead>
                 <TableHead>英文标识</TableHead>
                 <TableHead>简介</TableHead>
-                <TableHead className="w-48">操作</TableHead>
+                <TableHead className="w-32">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {categories.map((category, index) => (
-                <TableRow key={category.id}>
-                  <TableCell>{category.id}</TableCell>
-                  <TableCell>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={category.sortOrder}
-                      onChange={e =>
-                        handleSortOrderChange(category.id, e.target.value)
-                      }
-                      className="w-20"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {category.icon ? (
-                      <div
-                        className="w-10 h-10 relative border rounded cursor-pointer"
-                        onClick={() => setPreviewImage(category.icon!)}
-                      >
-                        <Image
-                          src={category.icon}
-                          alt="分类图标"
-                          fill
-                          className="object-contain rounded"
-                          unoptimized={category.icon.endsWith(".svg")}
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
-                        <Plus className="h-4 w-4 text-gray-400" />
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell>{category.slug}</TableCell>
-                  <TableCell>
-                    {truncateText(category.description, 30)}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleMoveUp(category)}
-                        disabled={index === 0}
-                        title="上移"
-                      >
-                        <ArrowUp className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleMoveDown(category)}
-                        disabled={index === categories.length - 1}
-                        title="下移"
-                      >
-                        <ArrowDown className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(category)}
-                        title="编辑"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(category.id)}
-                        title="删除"
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              <SortableContext
+                items={categories.map(category => category.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {categories.map(category => (
+                  <SortableRow
+                    key={category.id}
+                    category={category}
+                    onEdit={handleEdit}
+                    onDelete={confirmDelete}
+                    onPreview={setPreviewImage}
+                  />
+                ))}
+              </SortableContext>
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </DndContext>
+      </div>
 
       <Dialog open={modalVisible} onOpenChange={setModalVisible}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">

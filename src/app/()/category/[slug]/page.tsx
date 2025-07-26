@@ -172,17 +172,23 @@ export default async function CategoryPage({
       {/* 暗色蒙版和模糊效果 - 增强沉浸式科技氛围 */}
       <div className="fixed inset-0 z-[-1] bg-gradient-to-br from-black/50 via-black/60 to-black/70 backdrop-blur-md">
         {/* 科技网格背景 */}
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: `
             linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
           `,
-          backgroundSize: '50px 50px'
-        }}></div>
-        
+            backgroundSize: "50px 50px",
+          }}
+        ></div>
+
         {/* 动态光晕效果 */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-radial from-blue-500/20 via-purple-500/10 to-transparent rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-radial from-pink-500/20 via-orange-500/10 to-transparent rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div
+          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-radial from-pink-500/20 via-orange-500/10 to-transparent rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "2s" }}
+        ></div>
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-[960px] relative z-10">
@@ -208,7 +214,7 @@ export default async function CategoryPage({
             返回首页
           </Link>
         </div>
-        
+
         <div className="glass-container bg-white/10 backdrop-blur-xl border-0 rounded-lg shadow-2xl p-6 mb-6">
           <div className="corner-light-br"></div>
           <div className="edge-glow"></div>
