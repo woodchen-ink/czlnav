@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, FormEvent, KeyboardEvent } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { SearchIcon } from "./icons/SearchIcon";
 import { SearchResult } from "@/types/api";
@@ -48,7 +47,6 @@ export default function LiveSearch() {
   const [showResults, setShowResults] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   // 处理搜索框输入变化
   useEffect(() => {
@@ -108,8 +106,12 @@ export default function LiveSearch() {
           "noopener,noreferrer"
         );
       } else {
-        // 否则跳转到搜索结果页
-        router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+        // 没有找到结果时跳转到Google搜索
+        window.open(
+          `https://www.google.com/search?q=${encodeURIComponent(query.trim())}`,
+          "_blank",
+          "noopener,noreferrer"
+        );
       }
     }
   };
@@ -126,8 +128,12 @@ export default function LiveSearch() {
           "noopener,noreferrer"
         );
       } else {
-        // 否则跳转到搜索结果页
-        router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+        // 没有找到结果时跳转到Google搜索
+        window.open(
+          `https://www.google.com/search?q=${encodeURIComponent(query.trim())}`,
+          "_blank",
+          "noopener,noreferrer"
+        );
       }
     }
   };

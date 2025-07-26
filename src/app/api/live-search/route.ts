@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        clickCount: "desc",
+        sortOrder: "asc",
       },
       take: 8, // 只返回前8个服务结果
     });

@@ -19,11 +19,9 @@ async function getCategoriesWithServices(): Promise<Category[]> {
     const categories = await prisma.category.findMany({
       include: {
         services: {
-          take: 12,
-          orderBy: [
-            { sortOrder: "asc" },
-            { clickCount: "desc" },
-          ] as Prisma.ServiceOrderByWithRelationInput[],
+          orderBy: {
+            sortOrder: "asc",
+          } as Prisma.ServiceOrderByWithRelationInput,
         },
       },
       orderBy: {
