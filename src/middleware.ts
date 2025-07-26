@@ -33,7 +33,6 @@ export async function middleware(request: NextRequest) {
   // 为静态资源添加缓存控制头
   if (
     pathname.startsWith("/_next/static/") ||
-    pathname.startsWith("/uploads/") ||
     pathname.startsWith("/static/")
   ) {
     // 带hash的静态文件可以长期缓存

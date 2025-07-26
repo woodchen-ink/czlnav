@@ -39,12 +39,16 @@ const config = {
         ],
       },
       {
-        // 对上传的静态资源允许缓存
-        source: "/uploads/:path*",
+        // 对上传的静态资源允许缓存（使用更精确的匹配）
+        source: "/uploads/(.*)",
         headers: [
           {
             key: "Cache-Control",
             value: "public, max-age=31536000, immutable",
+          },
+          {
+            key: "Vary",
+            value: "Accept-Encoding",
           },
         ],
       },
