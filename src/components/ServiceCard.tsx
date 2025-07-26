@@ -130,7 +130,7 @@ const ServiceCard = React.memo(function ServiceCard({
                   alt={service.name}
                   fill
                   className="rounded-lg object-contain"
-                  unoptimized={service.icon.endsWith(".svg")}
+                  unoptimized={true}
                 />
               </div>
             ) : (
