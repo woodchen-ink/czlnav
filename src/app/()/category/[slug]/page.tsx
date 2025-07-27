@@ -8,7 +8,6 @@ import { getSiteSettings } from "@/utils/settings";
 import Image from "next/image";
 import { NoData } from "@/components/icons/NoData";
 import Pagination from "@/components/Pagination";
-import GlassEffects from "@/components/GlassEffects";
 
 // 每页显示的数据条数
 const PAGE_SIZE = 24;
@@ -215,9 +214,7 @@ export default async function CategoryPage({
           </Link>
         </div>
 
-        <div className="glass-container bg-white/10 backdrop-blur-xl border-0 rounded-lg shadow-2xl p-6 mb-6">
-          <div className="corner-light-br"></div>
-          <div className="edge-glow"></div>
+        <div className="liquid-glass bg-white/10 border-0 rounded-lg shadow-2xl p-6 mb-6">
           <div className="flex sm:flex-row flex-col items-center justify-center sm:justify-start relative z-10">
             <h1 className="text-3xl font-bold flex items-center text-white">
               {category.icon ? (
@@ -265,9 +262,7 @@ export default async function CategoryPage({
             ))}
           </div>
         ) : (
-          <div className="glass-container bg-white/10 backdrop-blur-xl border-0 rounded-lg shadow-2xl p-10 text-center flex flex-col items-center justify-center">
-            <div className="corner-light-br"></div>
-            <div className="edge-glow"></div>
+          <div className="liquid-glass bg-white/10 border-0 rounded-lg shadow-2xl p-10 text-center flex flex-col items-center justify-center">
             <div className="relative z-10">
               <NoData />
               <p className="text-white/70 mt-8">该分类下暂无数据</p>
@@ -287,9 +282,6 @@ export default async function CategoryPage({
           </div>
         )}
       </div>
-
-      {/* 添加玻璃光效样式 */}
-      <GlassEffects />
     </div>
   );
 }

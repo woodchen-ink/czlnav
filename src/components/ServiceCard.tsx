@@ -3,7 +3,6 @@
 import Image from "next/image";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useServiceClick } from "@/hooks/useServiceClick";
-import GlassEffects from "./GlassEffects";
 
 // 定义Service类型
 type Service = {
@@ -103,12 +102,10 @@ const ServiceCard = React.memo(function ServiceCard({
   const cardContent = useMemo(
     () => (
       <div
-        className="glass-container bg-white/10 backdrop-blur-xl border-0 rounded-lg shadow-xl outline-2 outline-none hover:outline-white/40 transition-all duration-300 cursor-pointer"
+        className="liquid-glass bg-white/10 border-0 rounded-lg shadow-xl outline-2 outline-none hover:outline-white/40 transition-all duration-300 cursor-pointer"
         onClick={onClick}
         title={service.description || service.name}
       >
-        <div className="corner-light-br"></div>
-        <div className="edge-glow"></div>
         <div className="menu-item p-3 flex items-center space-x-2 relative z-10">
           {/* 左侧图标 */}
           <div className="w-10 h-10 relative flex-shrink-0">
@@ -152,12 +149,7 @@ const ServiceCard = React.memo(function ServiceCard({
     [service, isImageLoaded, hasError, onClick, renderInitial]
   );
 
-  return (
-    <>
-      <GlassEffects />
-      {cardContent}
-    </>
-  );
+  return cardContent;
 });
 
 // 添加显示名称，便于调试
