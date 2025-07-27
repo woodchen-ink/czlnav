@@ -31,23 +31,6 @@ export default function GlassEffects() {
           );
       }
 
-      /* 科技粒子动效 */
-      @keyframes float-particles {
-        0%,
-        100% {
-          transform: translateY(0px) rotate(0deg);
-          opacity: 0.7;
-        }
-        33% {
-          transform: translateY(-10px) rotate(120deg);
-          opacity: 1;
-        }
-        66% {
-          transform: translateY(5px) rotate(240deg);
-          opacity: 0.8;
-        }
-      }
-
       @keyframes corner-glow {
         0%,
         100% {
@@ -170,56 +153,6 @@ export default function GlassEffects() {
           0 0 20px rgba(255, 255, 255, 0.1);
       }
 
-      /* 科技流光效果 - 减弱版 */
-      .glass-container .shimmer-effect {
-        position: absolute;
-        top: -1px;
-        left: -1px;
-        right: -1px;
-        bottom: -1px;
-        border-radius: inherit;
-        pointer-events: none;
-        z-index: 5;
-        border: 1px solid transparent;
-        background:
-          linear-gradient(
-              90deg,
-              transparent,
-              rgba(255, 255, 255, 0.25),
-              rgba(255, 255, 255, 0.15),
-              rgba(255, 255, 255, 0.25),
-              transparent
-            )
-            padding-box,
-          linear-gradient(
-              90deg,
-              transparent,
-              rgba(255, 255, 255, 0.12),
-              transparent
-            )
-            border-box;
-        background-size: 300% 100%;
-        animation: shimmer 8s ease-in-out infinite;
-        opacity: 0.6;
-      }
-
-      @keyframes shimmer {
-        0% {
-          background-position: -200% 0;
-          opacity: 0;
-        }
-        15% {
-          opacity: 0.8;
-        }
-        85% {
-          opacity: 0.8;
-        }
-        100% {
-          background-position: 200% 0;
-          opacity: 0;
-        }
-      }
-
       /* 悬停时的缩放和阴影过渡 */
       .glass-container:hover {
         transform: scale(1.02) translateZ(0);
@@ -232,11 +165,6 @@ export default function GlassEffects() {
       .glass-container:hover .corner-light-br {
         animation-duration: 3s;
         filter: blur(1.2px);
-      }
-
-      .glass-container:hover .shimmer-effect {
-        animation-duration: 4s;
-        opacity: 1;
       }
 
       /* 菜单项高亮效果 */
@@ -277,23 +205,6 @@ export default function GlassEffects() {
         stroke-width: 1px;
         fill: none;
         animation: float-particles 8s ease-in-out infinite;
-      }
-
-      /* 科技微粒效果 */
-      .tech-particles::before {
-        content: "";
-        position: absolute;
-        top: 10%;
-        left: 10%;
-        width: 2px;
-        height: 2px;
-        background: rgba(255, 255, 255, 0.6);
-        border-radius: 50%;
-        animation: float-particles 6s ease-in-out infinite;
-        box-shadow:
-          20px 10px 0 rgba(255, 69, 58, 0.6),
-          40px 20px 0 rgba(255, 149, 0, 0.6),
-          60px 15px 0 rgba(175, 82, 222, 0.6);
       }
     `}</style>
   );
