@@ -204,7 +204,7 @@ export default function GlassEffects() {
         stroke: rgba(255, 255, 255, 0.4);
         stroke-width: 1px;
         fill: none;
-        animation: float-particles 8s ease-in-out infinite;
+        animation: svg-outline 8s ease-in-out infinite;
       }
     `}</style>
   );

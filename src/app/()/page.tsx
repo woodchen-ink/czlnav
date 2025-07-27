@@ -101,7 +101,6 @@ export default async function Home() {
         <div className="glass-container bg-white/10 backdrop-blur-xl border-0 rounded-xl shadow-2xl">
           <div className="corner-light-br"></div>
           <div className="edge-glow"></div>
-          <div className="shimmer-effect"></div>
           {/* 侧边栏标题 */}
           <div className="bg-white/5 backdrop-blur-sm px-6 py-4 border-b border-white/10 relative z-10">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
@@ -118,7 +117,7 @@ export default async function Home() {
                 <a
                   key={category.id}
                   href={`#category-${category.slug}`}
-                  className="category-nav-link loaded menu-item group flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 border border-transparent hover:border-white/20 relative overflow-hidden backdrop-blur-sm tech-particles"
+                  className="category-nav-link loaded menu-item group flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 border border-transparent hover:border-white/20 relative overflow-hidden backdrop-blur-sm"
                   style={{
                     animationDelay: `${index * 50}ms`,
                   }}
@@ -198,7 +197,6 @@ export default async function Home() {
           <div className="glass-container bg-white/10 backdrop-blur-xl border-0 rounded-xl shadow-2xl">
             <div className="corner-light-br"></div>
             <div className="edge-glow"></div>
-            <div className="shimmer-effect"></div>
             {/* 移动端标题 */}
             <div className="bg-white/5 backdrop-blur-sm px-6 py-4 border-b border-white/10 relative z-10">
               <h2 className="text-xl font-semibold text-white flex items-center gap-2">
@@ -215,7 +213,7 @@ export default async function Home() {
                   <a
                     key={category.id}
                     href={`#category-${category.slug}`}
-                    className="category-nav-link loaded menu-item group flex flex-col items-center gap-2 p-4 bg-white/10 border border-white/20 hover:border-white/40 rounded-lg transition-all duration-200 hover:shadow-lg backdrop-blur-sm relative z-10 tech-particles"
+                    className="category-nav-link loaded menu-item group flex flex-col items-center gap-2 p-4 bg-white/10 border border-white/20 hover:border-white/40 rounded-lg transition-all duration-200 hover:shadow-lg backdrop-blur-sm relative z-10"
                     data-category-id={`category-${category.slug}`}
                     style={{
                       animationDelay: `${index * 30}ms`,
@@ -260,7 +258,6 @@ export default async function Home() {
         <div className="glass-container group w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-xl border-0 shadow-2xl hover:shadow-3xl hover:bg-white/25 transition-all duration-300 hover:scale-105">
           <div className="corner-light-br"></div>
           <div className="edge-glow"></div>
-          <div className="shimmer-effect"></div>
           <BackToTopButton className="flex items-center justify-center w-full h-full text-white/70 hover:text-white relative z-10">
             <svg
               xmlns="http://www.w3.org/2000/svg"

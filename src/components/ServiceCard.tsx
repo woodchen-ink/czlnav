@@ -109,7 +109,6 @@ const ServiceCard = React.memo(function ServiceCard({
       >
         <div className="corner-light-br"></div>
         <div className="edge-glow"></div>
-        <div className="shimmer-effect"></div>
         <div className="menu-item p-3 flex items-center space-x-2 relative z-10">
           {/* 左侧图标 */}
           <div className="w-10 h-10 relative flex-shrink-0">
