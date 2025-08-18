@@ -7,6 +7,7 @@ import CategoryNavStyles from "@/components/CategoryNavStyles";
 // import CategoryIcon from "@/components/CategoryIcon";
 import { Prisma } from "@prisma/client";
 import Image from "next/image";
+import "@/app/liquid-glass.css";
 
 // 使用ISR缓存 - 构建时可能为空，运行时获取真实数据
 export const revalidate = 60; // 60秒重新验证

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useServiceClick } from "@/hooks/useServiceClick";
+import "@/app/liquid-glass.css";
 
 // 定义Service类型
 type Service = {

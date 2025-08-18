@@ -8,6 +8,7 @@ import { getSiteSettings } from "@/utils/settings";
 import Image from "next/image";
 import { NoData } from "@/components/icons/NoData";
 import Pagination from "@/components/Pagination";
+import "@/app/liquid-glass.css";
 
 // 每页显示的数据条数
 const PAGE_SIZE = 24;
