@@ -114,14 +114,6 @@ body {
     --popover: #ffffff;
   }
 }
-/* 一键液态玻璃效果 - 包含所有子效果 */
-.liquid-glass {
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(12px) saturate(120%);
-  -webkit-backdrop-filter: blur(12px) saturate(120%);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
 
 /* 全局背景渐变效果 */
 body::before {
@@ -149,6 +141,25 @@ body::before {
       rgba(255, 255, 255, 0.1),
       transparent 50%
     );
+}
+
+/* 一键液态玻璃效果 - 包含所有子效果 */
+.liquid-glass {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 50%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 第一层：优化的玻璃折射效果 */
@@ -181,78 +192,24 @@ body::before {
   z-index: 1;
 }
 
-/* 第二层：更透明的右下角苹果渐变光效 */
-.liquid-glass::after {
-  content: "";
-  position: absolute;
-  bottom: -1px;
-  right: -1px;
-  width: 45px;
-  height: 45px;
-  background: radial-gradient(
-    circle at center,
-    rgba(255, 69, 58, 0.6) 0%,
-    rgba(255, 149, 0, 0.4) 30%,
-    rgba(175, 82, 222, 0.3) 60%,
-    transparent 75%
-  );
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 3;
-  animation: corner-glow 8s ease-in-out infinite 2s;
-  filter: blur(0.6px);
-  clip-path: polygon(
-    calc(100% - 3px) 0,
-    100% 0,
-    100% 100%,
-    0 100%,
-    0 calc(100% - 3px),
-    calc(100% - 3px) calc(100% - 3px)
-  );
-  mix-blend-mode: soft-light;
-}
-
 /* 悬停时的缩放和阴影过渡 */
 .liquid-glass:hover {
-  transform: scale(1.015) translateZ(0);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  color: rgba(255, 255, 255, 0.95);
+  transform: scale(1.02) translateZ(0);
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  border-color: rgba(255, 255, 255, 0.18);
   box-shadow:
-    0 15px 35px rgba(0, 0, 0, 0.25),
-    0 8px 16px rgba(255, 255, 255, 0.08),
+    0 15px 35px rgba(0, 0, 0, 0.4),
+    0 8px 16px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 69, 58, 0.06) 0%,
-    rgba(255, 149, 0, 0.06) 30%,
-    rgba(175, 82, 222, 0.06) 60%,
-    rgba(64, 200, 224, 0.06) 100%
-  );
-}
-
-.liquid-glass:hover::after {
-  animation-duration: 4s;
-  filter: blur(0.8px);
-  opacity: 0.8;
-}
-
-/* 菜单项高亮效果 */
-.liquid-glass .menu-item {
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.liquid-glass .menu-item:hover {
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15);
   background: linear-gradient(
     135deg,
     rgba(255, 69, 58, 0.2),
     rgba(255, 149, 0, 0.2),
     rgba(175, 82, 222, 0.2)
   );
-  color: rgba(255, 255, 255, 0.95);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
 /* Bento卡片高对比突出 */
