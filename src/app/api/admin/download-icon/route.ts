@@ -51,13 +51,23 @@ async function downloadAndSaveIcon(iconUrl: string): Promise<string | null> {
       if (extractedIconUrl) {
         finalIconUrl = extractedIconUrl;
       } else {
-        // 如果无法从页面提取图标，尝试常见的favicon路径
+        // 如果无法从页面提取图标，尝试常见的favicon路径和页面logo
         const baseUrl = new URL(iconUrl).origin;
         const commonPaths = [
           "/favicon.ico",
           "/favicon.png",
           "/apple-touch-icon.png",
           "/apple-touch-icon-precomposed.png",
+          "/icon.png",
+          "/icon.ico",
+          "/logo.png",
+          "/logo.ico",
+          "/assets/favicon.ico",
+          "/assets/icon.png",
+          "/images/favicon.ico",
+          "/images/icon.png",
+          "/static/favicon.ico",
+          "/static/icon.png",
         ];
 
         for (const path of commonPaths) {
@@ -65,6 +75,14 @@ async function downloadAndSaveIcon(iconUrl: string): Promise<string | null> {
           if (await isValidIcon(testUrl)) {
             finalIconUrl = testUrl;
             break;
+          }
+        }
+
+        // 如果还是没找到，尝试从页面内容中提取logo图片
+        if (finalIconUrl === iconUrl) {
+          const logoUrl = await extractLogoFromPage(iconUrl);
+          if (logoUrl && (await isValidIcon(logoUrl))) {
+            finalIconUrl = logoUrl;
           }
         }
       }
@@ -102,6 +120,86 @@ function isDirectImageUrl(url: string): boolean {
   ];
   const pathname = new URL(url).pathname.toLowerCase();
   return imageExtensions.some(ext => pathname.endsWith(ext));
+}
+
+// 从页面HTML中提取logo图片URL作为fallback
+async function extractLogoFromPage(pageUrl: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(pageUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+        "Cache-Control": "no-cache",
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const html = await response.text();
+    const baseUrl = new URL(pageUrl).origin;
+
+    // 提取可能的logo图片
+    const logoSelectors = [
+      // 通过class名称
+      /<img[^>]+class="[^"]*logo[^"]*"[^>]+src="([^"]+)"/gi,
+      /<img[^>]+src="([^"]+)"[^>]+class="[^"]*logo[^"]*"/gi,
+      // 通过id名称
+      /<img[^>]+id="[^"]*logo[^"]*"[^>]+src="([^"]+)"/gi,
+      /<img[^>]+src="([^"]+)"[^>]+id="[^"]*logo[^"]*"/gi,
+      // 通过alt属性
+      /<img[^>]+alt="[^"]*logo[^"]*"[^>]+src="([^"]+)"/gi,
+      /<img[^>]+src="([^"]+)"[^>]+alt="[^"]*logo[^"]*"/gi,
+      // 通过文件名包含logo
+      /<img[^>]+src="([^"]*logo[^"]*\.(png|jpg|jpeg|svg|webp))"/gi,
+      // 通用logo模式
+      /<img[^>]+src="([^"]*\/logo\.[^"]*)"[^>]*>/gi,
+      /<img[^>]+src="([^"]*logo\.[^"]*)"[^>]*>/gi,
+    ];
+
+    for (const regex of logoSelectors) {
+      let match;
+      while ((match = regex.exec(html)) !== null) {
+        if (match[1]) {
+          let logoUrl = match[1];
+          // 处理相对URL
+          if (logoUrl.startsWith("//")) {
+            logoUrl = "https:" + logoUrl;
+          } else if (logoUrl.startsWith("/")) {
+            logoUrl = baseUrl + logoUrl;
+          } else if (!logoUrl.startsWith("http")) {
+            logoUrl = baseUrl + "/" + logoUrl;
+          }
+
+          // 过滤掉明显不是logo的图片
+          if (
+            !logoUrl.includes("banner") &&
+            !logoUrl.includes("ad") &&
+            !logoUrl.includes("qr") &&
+            !logoUrl.includes("wechat") &&
+            !logoUrl.includes("weibo")
+          ) {
+            return logoUrl;
+          }
+        }
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error("从页面提取logo失败:", error);
+    return null;
+  }
 }
 
 // 从页面HTML中提取图标URL
