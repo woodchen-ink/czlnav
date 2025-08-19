@@ -38,9 +38,10 @@ function isValidImageBuffer(buffer: Buffer): boolean {
 // 服务上传的文件
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: { params: Promise<{ path: string[] }> }
 ) {
   try {
+    const params = await context.params;
     const filePath = params.path.join("/");
     const fullPath = join(process.cwd(), "public", "uploads", filePath);
 
