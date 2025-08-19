@@ -25,6 +25,15 @@ const config = {
     // 使用时间戳或环境变量作为构建ID
     return process.env.BUILD_ID || Date.now().toString();
   },
+  // 添加重写规则，兼容旧的静态文件路径
+  async rewrites() {
+    return [
+      {
+        source: "/uploads/:path*",
+        destination: "/api/uploads/:path*",
+      },
+    ];
+  },
   // 添加HTTP头，控制缓存
   async headers() {
     return [

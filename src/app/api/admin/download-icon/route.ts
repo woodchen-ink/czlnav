@@ -77,7 +77,11 @@ async function downloadAndSaveIcon(iconUrl: string): Promise<string | null> {
     }
 
     // 保存文件
-    const savedPath = await saveIconFile(iconData.buffer, iconData.extension);
+    const savedPath = await saveIconFile(
+      iconData.buffer,
+      iconData.extension,
+      finalIconUrl
+    );
     return savedPath;
   } catch (error) {
     console.error("下载图标失败:", error);
@@ -345,13 +349,19 @@ function detectFileExtensionFromBuffer(buffer: Buffer): string {
 // 保存图标文件
 async function saveIconFile(
   buffer: Buffer,
-  extension: string
+  extension: string,
+  sourceUrl: string
 ): Promise<string | null> {
   try {
-    // 生成文件名
+    // 从源URL提取主机名并清理
+    const hostname = new URL(sourceUrl).hostname
+      .replace(/^www\./, "") // 移除www前缀
+      .replace(/[^a-zA-Z0-9.-]/g, "_") // 替换特殊字符为下划线
+      .toLowerCase();
+
+    // 生成文件名：hostname_timestamp.extension
     const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(2, 8);
-    const fileName = `icon_${timestamp}_${random}.${extension}`;
+    const fileName = `${hostname}_${timestamp}.${extension}`;
 
     // 确保上传目录存在
     const uploadDir = join(process.cwd(), "public", "uploads", "icons");
@@ -369,8 +379,8 @@ async function saveIconFile(
       return null;
     }
 
-    // 返回本地URL
-    return `/uploads/icons/${fileName}`;
+    // 返回API服务的URL而不是静态文件URL
+    return `/api/uploads/icons/${fileName}`;
   } catch (error) {
     console.error("保存图标文件失败:", error);
     return null;
