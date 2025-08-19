@@ -58,12 +58,13 @@ export async function GET(
 
     // 检查文件名格式（兼容新旧格式）
     const fileName = pathParts[pathParts.length - 1];
-    const isOldFormat = /^icon_\d+\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(
-      fileName
-    );
-    const isNewFormat = /^[\w.-]+_\d+\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(
-      fileName
-    );
+
+    const isOldFormat =
+      /^icon_\d+(_[a-z0-9]+)?\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(
+        fileName
+      );
+    const isNewFormat =
+      /^[a-z0-9._-]+_\d+\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(fileName);
 
     if (!isOldFormat && !isNewFormat) {
       return new NextResponse("Invalid file name format", { status: 400 });
