@@ -1,6 +1,6 @@
 services:
   czlnav:
-    image: woodchen/czlnav:latest
+    image: woodchen/czlnav:latest # 国内使用 docker.cnb.cool/czl/czlnav:latest
     container_name: czlnav
     ports:
       - "3000:3000"

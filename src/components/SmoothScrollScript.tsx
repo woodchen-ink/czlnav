@@ -69,7 +69,7 @@ export default function SmoothScrollScript() {
                 top: offsetPosition,
                 behavior: "smooth",
               });
-            } catch (error) {
+            } catch {
               // 降级处理：如果 smooth 行为不支持，使用 instant
               window.scrollTo(0, offsetPosition);
             }

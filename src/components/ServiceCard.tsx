@@ -85,9 +85,23 @@ const ServiceCard = React.memo(function ServiceCard({
     };
   }, [service.icon]);
 
-  const onClick = useCallback(() => {
-    handleServiceClick(service.id, service.url);
-  }, [handleServiceClick, service.id, service.url]);
+  const onClick = useCallback(
+    (e: React.MouseEvent) => {
+      // 先记录点击（异步，不阻塞导航）
+      fetch(`/api/services/${service.id}/click`, {
+        method: "POST",
+      }).catch(() => {
+        // 静默失败
+      });
+      // 不阻止默认行为，让浏览器自然打开链接
+    },
+    [service.id]
+  );
+
+  // 添加来源参数
+  const DEFAULT_REF_SOURCE = "https://nav.czl.net";
+  const separator = service.url.includes("?") ? "&" : "?";
+  const finalUrl = `${service.url}${separator}ref=${DEFAULT_REF_SOURCE}`;
 
   // 渲染首字母图标
   const renderInitial = useCallback(
@@ -102,8 +116,11 @@ const ServiceCard = React.memo(function ServiceCard({
   // 使用 useMemo 缓存卡片内容
   const cardContent = useMemo(
     () => (
-      <div
-        className="liquid-glass bg-white/10 border-0 rounded-lg shadow-xl outline-2 outline-none hover:outline-white/40 transition-all duration-300 cursor-pointer"
+      <a
+        href={finalUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="liquid-glass bg-white/10 border-0 rounded-lg shadow-xl outline-2 outline-none hover:outline-white/40 transition-all duration-300 cursor-pointer block"
         onClick={onClick}
         title={service.description || service.name}
       >
@@ -145,9 +162,9 @@ const ServiceCard = React.memo(function ServiceCard({
             </p>
           </div>
         </div>
-      </div>
+      </a>
     ),
-    [service, isImageLoaded, hasError, onClick, renderInitial]
+    [service, isImageLoaded, hasError, onClick, renderInitial, finalUrl]
   );
 
   return cardContent;
