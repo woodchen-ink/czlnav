@@ -210,7 +210,7 @@ export default function CategoryNavStyles() {
       @media (max-width: 1279px) {
         .category-nav-link {
           animation: fadeInUp 0.3s ease-out forwards;
-          opacity: 0;
+          opacity: 1; /* 移动端立即显示，避免点击失效 */
         }
 
         .category-nav-link:hover {
@@ -219,6 +219,12 @@ export default function CategoryNavStyles() {
 
         .category-nav-link.active-category {
           transform: none;
+        }
+
+        /* 确保移动端点击区域可用 */
+        .category-nav-link:active {
+          transform: scale(0.98);
+          background: rgba(255, 255, 255, 0.2);
         }
       }
 
