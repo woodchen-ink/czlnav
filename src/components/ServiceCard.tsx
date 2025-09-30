@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useServiceClick } from "@/hooks/useServiceClick";
 import "@/app/liquid-glass.css";
 
 // 定义Service类型
@@ -32,7 +31,6 @@ const ServiceCard = React.memo(function ServiceCard({
 }: ServiceCardProps) {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const handleServiceClick = useServiceClick();
 
   // 图片加载处理
   useEffect(() => {
@@ -85,18 +83,15 @@ const ServiceCard = React.memo(function ServiceCard({
     };
   }, [service.icon]);
 
-  const onClick = useCallback(
-    (e: React.MouseEvent) => {
-      // 先记录点击（异步，不阻塞导航）
-      fetch(`/api/services/${service.id}/click`, {
-        method: "POST",
-      }).catch(() => {
-        // 静默失败
-      });
-      // 不阻止默认行为，让浏览器自然打开链接
-    },
-    [service.id]
-  );
+  const onClick = useCallback(() => {
+    // 先记录点击（异步，不阻塞导航）
+    fetch(`/api/services/${service.id}/click`, {
+      method: "POST",
+    }).catch(() => {
+      // 静默失败
+    });
+    // 不阻止默认行为，让浏览器自然打开链接
+  }, [service.id]);
 
   // 添加来源参数
   const DEFAULT_REF_SOURCE = "https://nav.czl.net";
