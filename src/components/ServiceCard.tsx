@@ -115,7 +115,7 @@ const ServiceCard = React.memo(function ServiceCard({
         href={finalUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="liquid-glass bg-white/10 border-0 rounded-lg shadow-xl outline-2 outline-none hover:outline-white/40 transition-all duration-300 cursor-pointer block"
+        className="liquid-glass bg-white/10 border-0 rounded-lg shadow-xl transition-all duration-300 cursor-pointer block hover:shadow-2xl"
         onClick={onClick}
         title={service.description || service.name}
       >
