@@ -97,7 +97,7 @@ export default async function Home() {
       </div>
 
       {/* 浮动侧边栏 - 增加与主内容的间距，避免覆盖 */}
-      <div className="hidden xl:block fixed left-[max(16px,calc(50%-520px-240px))] top-[100px] w-60 z-10">
+      <div className="hidden xl:block fixed left-[max(16px,calc(50%-520px-200px))] top-[100px] w-52 z-10">
         <div className="liquid-glass bg-white/10 border-0 rounded-xl shadow-2xl">
           {/* 侧边栏标题 */}
           <div className="bg-white/5 backdrop-blur-sm px-6 py-4 border-b border-white/10 relative z-10">
