@@ -93,10 +93,8 @@ const ServiceCard = React.memo(function ServiceCard({
     // 不阻止默认行为，让浏览器自然打开链接
   }, [service.id]);
 
-  // 添加来源参数
-  const DEFAULT_REF_SOURCE = "https://nav.czl.net";
-  const separator = service.url.includes("?") ? "&" : "?";
-  const finalUrl = `${service.url}${separator}ref=${DEFAULT_REF_SOURCE}`;
+  // 直接使用原始URL,不添加ref参数
+  const finalUrl = service.url;
 
   // 渲染首字母图标
   const renderInitial = useCallback(
