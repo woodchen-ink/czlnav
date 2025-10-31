@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getSiteSettings } from "@/utils/settings";
 import { clearCacheOnStartup } from "@/lib/startup-cache-clear";
+import Script from "next/script";
 
 // 在应用启动时清除缓存
 clearCacheOnStartup();
@@ -30,6 +31,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
+      <Script
+        id="clarity-analytics"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+              (function(c,l,a,r,i,t,y){
+                c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+                t=l.createElement(r);t.async=1;t.src="https://analytics.czl.net/ms/t.js?id="+ i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+              })(window, document, "clarity", "script", "tyqyu4sbrn");
+            `,
+        }}
+      />
       <body>{children}</body>
     </html>
   );
