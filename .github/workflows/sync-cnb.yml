@@ -1,15 +1,20 @@
 name: Sync to CNB
-on: [push]
+
+on:
+  push:
+    branches: [main]
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Sync to CNB Repository
+      - name: Sync to CNB repository
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:${{ github.workspace }} \

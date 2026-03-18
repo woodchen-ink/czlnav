@@ -1,75 +1,44 @@
-# 构建阶段
-FROM node:22-alpine AS builder
+FROM node:22-alpine AS frontend-builder
 
-# 设置工作目录
-WORKDIR /app
+WORKDIR /src
 
-# 安装构建时依赖
-RUN apk add --no-cache libc6-compat openssl
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+WORKDIR /src/frontend
+RUN npm ci --no-audit --no-fund
 
-# 复制依赖配置文件
-COPY package*.json ./
-COPY prisma ./prisma/
-COPY tsconfig.json ./
-COPY next.config.js ./
-COPY tailwind.config.js ./
-COPY postcss.config.mjs ./
-COPY components.json ./
-
-# 配置 npm 并安装依赖
-RUN npm config set registry https://registry.npmmirror.com/ && \
-    npm config set fund false && \
-    npm config set audit false && \
-    npm cache clean --force && \
-    npm ci --no-optional --no-fund --no-audit
-
-# 生成 Prisma 客户端
-RUN npx prisma generate
-
-# 复制源代码
-COPY src ./src
-COPY public ./public
-COPY scripts/start.sh ./scripts/start.sh
-COPY prisma/init.sql ./prisma/init.sql
-
-# 构建应用
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_ENV=production
-ENV DATABASE_URL="file:/tmp/build.db"
-
-# 创建临时数据库和表结构用于构建
-RUN npx prisma migrate dev --name init --skip-generate || npx prisma db push
-
+COPY frontend ./
 RUN npm run build
 
-# 运行阶段
-FROM node:22-alpine AS runner
+FROM golang:1.25-alpine AS go-builder
+
+WORKDIR /src
+
+COPY go-backend/go.mod go-backend/go.sum ./go-backend/
+RUN cd go-backend && go mod download
+
+COPY go-backend ./go-backend
+
+RUN cd go-backend && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /out/czlnav .
+
+FROM alpine:3.21
+
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+RUN apk add --no-cache ca-certificates tzdata wget
 
-# 安装运行时依赖
-RUN apk add --no-cache openssl dumb-init sqlite
+COPY --from=go-builder /out/czlnav /app/czlnav
+COPY --from=frontend-builder /src/frontend/out /app/frontend-out
 
-# 复制 standalone 构建产物
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+RUN mkdir -p /app/data /app/uploads
 
-# 复制 Prisma schema 和初始化脚本
-COPY --from=builder /app/prisma ./prisma
-
-# 复制脚本文件
-COPY --from=builder /app/scripts/start.sh /app/start.sh
-
-# 创建必要的目录并设置权限
-RUN mkdir -p /app/data /app/public/uploads && \
-    chmod +x /app/start.sh
+ENV APP_ENV=production
+ENV APP_URL=http://localhost:3000
+ENV PORT=3000
+ENV DATABASE_PATH=/app/data/database.db
+ENV UPLOAD_DIR=/app/uploads
+ENV FRONTEND_DIST_DIR=/app/frontend-out
+ENV ADMIN_DIST_DIR=/app/frontend-out/admin
 
 EXPOSE 3000
 
-ENV PORT=3000
-ENV DATABASE_URL="file:/app/data/database.db"
-
-CMD ["dumb-init", "/app/start.sh"]
+CMD ["/app/czlnav"]
