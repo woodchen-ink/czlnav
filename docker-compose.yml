@@ -6,15 +6,9 @@ services:
       - "3000:3000"
     environment:
       APP_ENV: production
-      APP_URL: ${APP_URL:-http://localhost:3000}
-      PORT: 3000
-      DATABASE_PATH: /app/data/database.db
-      UPLOAD_DIR: /app/uploads
-      FRONTEND_DIST_DIR: /app/frontend-out
-      ADMIN_DIST_DIR: /app/frontend-out/admin
-      CZL_CONNECT_CLIENT_ID: ${CZL_CONNECT_CLIENT_ID:-}
-      CZL_CONNECT_CLIENT_SECRET: ${CZL_CONNECT_CLIENT_SECRET:-}
-      AUTH_CALLBACK_URL: ${AUTH_CALLBACK_URL:-http://localhost:3000/api/auth/callback}
+      APP_URL: https://nav.czl.net
+      CZL_CONNECT_CLIENT_ID: ${CZL_CONNECT_CLIENT_ID}
+      CZL_CONNECT_CLIENT_SECRET: ${CZL_CONNECT_CLIENT_SECRET}
     volumes:
       - /data/czlnav/data:/app/data
       - /data/czlnav/data/uploads:/app/uploads
