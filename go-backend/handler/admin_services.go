@@ -119,6 +119,7 @@ func (d *Deps) CreateService(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	d.invalidatePublicContentCache()
 	go d.SSGService.BuildAll()
 	success(w, model.ServiceWithCategory{
 		Service:      svc,
@@ -176,6 +177,7 @@ func (d *Deps) UpdateService(w http.ResponseWriter, r *http.Request) {
 	var cat model.Category
 	d.DB.First(&cat, svc.CategoryID)
 
+	d.invalidatePublicContentCache()
 	go d.SSGService.BuildAll()
 	success(w, model.ServiceWithCategory{
 		Service:      svc,
@@ -197,6 +199,7 @@ func (d *Deps) DeleteService(w http.ResponseWriter, r *http.Request) {
 	}
 
 	d.DB.Delete(&svc)
+	d.invalidatePublicContentCache()
 	go d.SSGService.BuildAll()
 	success(w, nil, "删除服务成功")
 }
@@ -217,6 +220,7 @@ func (d *Deps) ReorderServices(w http.ResponseWriter, r *http.Request) {
 		d.DB.Model(&model.Service{}).Where("id = ?", u.ID).Update("sortOrder", u.SortOrder)
 	}
 
+	d.invalidatePublicContentCache()
 	go d.SSGService.BuildAll()
 	success(w, nil, "批量更新排序成功")
 }

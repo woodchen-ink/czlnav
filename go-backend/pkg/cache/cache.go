@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"strings"
 	"sync"
 	"time"
 )
@@ -41,6 +42,21 @@ func (c *Cache) Delete(key string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	delete(c.items, key)
+}
+
+func (c *Cache) DeletePrefix(prefix string) int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	deleted := 0
+	for key := range c.items {
+		if strings.HasPrefix(key, prefix) {
+			delete(c.items, key)
+			deleted++
+		}
+	}
+
+	return deleted
 }
 
 func (c *Cache) Clear() {

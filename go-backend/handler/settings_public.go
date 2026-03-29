@@ -6,7 +6,7 @@ import (
 )
 
 func (d *Deps) GetPublicSettings(w http.ResponseWriter, r *http.Request) {
-	settings := d.loadSettings()
+	settings := d.getCachedSettings()
 	success(w, settings)
 }
 

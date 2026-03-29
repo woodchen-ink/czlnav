@@ -80,6 +80,7 @@ func (d *Deps) CreateCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	d.invalidatePublicContentCache()
 	go d.SSGService.BuildAll()
 	success(w, cat, "创建分类成功")
 }
@@ -151,6 +152,7 @@ func (d *Deps) UpdateCategory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	d.DB.First(&cat, id)
+	d.invalidatePublicContentCache()
 	go d.SSGService.BuildAll()
 	success(w, cat, "更新分类成功")
 }
@@ -169,6 +171,7 @@ func (d *Deps) DeleteCategory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	d.DB.Delete(&cat)
+	d.invalidatePublicContentCache()
 	go d.SSGService.BuildAll()
 	success(w, nil, "删除分类成功")
 }
@@ -189,6 +192,7 @@ func (d *Deps) ReorderCategories(w http.ResponseWriter, r *http.Request) {
 		d.DB.Model(&model.Category{}).Where("id = ?", u.ID).Update("sortOrder", u.SortOrder)
 	}
 
+	d.invalidatePublicContentCache()
 	go d.SSGService.BuildAll()
 	success(w, nil, "批量更新排序成功")
 }

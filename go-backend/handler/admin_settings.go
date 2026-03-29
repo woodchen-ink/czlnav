@@ -8,7 +8,7 @@ import (
 )
 
 func (d *Deps) GetAdminSettings(w http.ResponseWriter, r *http.Request) {
-	settings := d.loadSettings()
+	settings := d.getCachedSettings()
 	success(w, settings)
 }
 
@@ -37,6 +37,7 @@ func (d *Deps) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	d.invalidateSettingsCache()
 	go d.SSGService.BuildAll()
 	success(w, nil, "设置更新成功")
 }

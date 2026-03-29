@@ -26,14 +26,21 @@ type PublicCategoryPayload struct {
 }
 
 func (d *Deps) GetPublicHome(w http.ResponseWriter, r *http.Request) {
+	if cached, ok := d.getCachedHomePayload(); ok {
+		success(w, cached)
+		return
+	}
+
 	var categories []model.Category
 	d.DB.Preload("Services", func(db *gorm.DB) *gorm.DB {
 		return db.Order("sortOrder ASC").Order("id DESC")
 	}).Order("sortOrder ASC").Find(&categories)
 
-	success(w, PublicHomePayload{
+	payload := PublicHomePayload{
 		Categories: categories,
-	})
+	}
+	d.cacheHomePayload(payload)
+	success(w, payload)
 }
 
 func (d *Deps) GetPublicCategory(w http.ResponseWriter, r *http.Request) {
@@ -51,6 +58,12 @@ func (d *Deps) GetPublicCategory(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		page = parsed
+	}
+
+	requestedPage := page
+	if cached, ok := d.getCachedCategoryPayload(slug, requestedPage); ok {
+		success(w, cached)
+		return
 	}
 
 	var category model.Category
@@ -78,11 +91,14 @@ func (d *Deps) GetPublicCategory(w http.ResponseWriter, r *http.Request) {
 		Limit(publicCategoryPageSize).
 		Find(&services)
 
-	success(w, PublicCategoryPayload{
+	payload := PublicCategoryPayload{
 		Category:    category,
 		Services:    services,
 		CurrentPage: page,
 		TotalPages:  totalPages,
 		TotalCount:  int(totalCount),
-	})
+	}
+	d.cacheCategoryPayload(slug, requestedPage, payload)
+	d.cacheCategoryPayload(slug, page, payload)
+	success(w, payload)
 }
