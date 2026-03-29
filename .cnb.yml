@@ -7,3 +7,5 @@ main:
           script: docker build -t ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest .
         - name: docker push
           script: docker push ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest
+        - name: deploy webhook
+          script: curl -X POST https://dp.czl.net/api/deploy/j84haybZTRkNsvAQiKgHm
