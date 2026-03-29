@@ -66,7 +66,7 @@ export default function Navbar({ siteName }: NavbarProps) {
           <nav className="md:w-1/4 flex justify-end">
             <ul className="flex space-x-6">
               <li className="hidden md:block">
-                <Link
+                <a
                   href="/admin"
                   className={`hover:text-primary transition-colors ${
                     pathname === "/admin"
@@ -76,7 +76,7 @@ export default function Navbar({ siteName }: NavbarProps) {
                   title="管理"
                 >
                   <Settings className="h-6 w-6" />
-                </Link>
+                </a>
               </li>
             </ul>
           </nav>

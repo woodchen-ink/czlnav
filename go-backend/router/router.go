@@ -108,7 +108,7 @@ func New(deps *handler.Deps) http.Handler {
 			return
 		}
 		if strings.HasPrefix(r.URL.Path, "/admin/") && !strings.HasPrefix(r.URL.Path, "/admin/assets/") {
-			deps.ServeAdminPage(w, r)
+			adminPageHandler.ServeHTTP(w, r)
 			return
 		}
 		http.NotFound(w, r)

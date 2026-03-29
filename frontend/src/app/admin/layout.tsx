@@ -27,9 +27,12 @@ export default function AdminLayout({
 }>) {
   const [collapsed, setCollapsed] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [siteName, setSiteName] = useState("导航");
   const router = useRouter();
   const pathname = usePathname();
+  const isLoginPage = pathname === "/admin/login";
 
   // 处理客户端渲染
   useEffect(() => {
@@ -51,8 +54,56 @@ export default function AdminLayout({
     fetchSettings();
   }, []);
 
+  // 在渲染后台框架前先校验登录态，避免未登录用户看到后台壳子
+  useEffect(() => {
+    if (!isClient || isLoginPage) {
+      setAuthChecked(true);
+      setIsAuthorized(true);
+      return;
+    }
+
+    let cancelled = false;
+
+    const verifyAdminSession = async () => {
+      try {
+        const response = await fetch("/api/admin/account", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          if (!cancelled) {
+            setIsAuthorized(false);
+            setAuthChecked(true);
+            window.location.replace("/admin/login");
+          }
+          return;
+        }
+
+        if (!cancelled) {
+          setIsAuthorized(true);
+          setAuthChecked(true);
+        }
+      } catch (error) {
+        console.error("校验登录状态失败:", error);
+        if (!cancelled) {
+          setIsAuthorized(false);
+          setAuthChecked(true);
+          window.location.replace("/admin/login");
+        }
+      }
+    };
+
+    setAuthChecked(false);
+    setIsAuthorized(false);
+    verifyAdminSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isClient, isLoginPage]);
+
   // 处理登录页面
-  if (pathname === "/admin/login") {
+  if (isLoginPage) {
     return (
       <AdminAppProvider>
         <html lang="zh-CN">
@@ -108,6 +159,16 @@ export default function AdminLayout({
 
   if (!isClient) {
     return null;
+  }
+
+  if (!authChecked || !isAuthorized) {
+    return (
+      <AdminAppProvider>
+        <div className="flex min-h-screen items-center justify-center bg-gray-50 text-sm text-gray-500">
+          正在验证登录状态...
+        </div>
+      </AdminAppProvider>
+    );
   }
 
   return (
