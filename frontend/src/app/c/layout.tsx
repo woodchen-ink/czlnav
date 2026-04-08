@@ -1,4 +1,3 @@
-import "../globals.css";
 import PublicSiteShell from "@/components/PublicSiteShell";
 
 export default function CategoryLayout({

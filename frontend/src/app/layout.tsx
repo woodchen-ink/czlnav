@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { clearCacheOnStartup } from "@/lib/startup-cache-clear";
 import Script from "next/script";
-
-clearCacheOnStartup();
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: {

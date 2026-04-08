@@ -1,7 +1,5 @@
 "use client";
 
-// 导入全局样式
-import "../globals.css";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
