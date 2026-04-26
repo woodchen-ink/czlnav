@@ -47,7 +47,7 @@ export default function HomePage() {
         />
       </div>
 
-      <div className="fixed inset-0 z-[-1] bg-gradient-to-br from-black/50 via-black/60 to-black/70 backdrop-blur-md">
+      <div className="fixed inset-0 z-[-1] bg-gradient-to-br from-black/45 via-black/50 to-black/60">
         <div
           className="absolute inset-0 opacity-10"
           style={{
