@@ -134,7 +134,7 @@ export default function CategoryPageClient() {
           </Link>
         </div>
 
-        <div className="liquid-glass liquid-glass-static bg-white/10 border-0 rounded-lg rounded-tl-none shadow-2xl p-6 mb-6">
+        <div className="liquid-glass liquid-glass-static rounded-lg rounded-tl-none p-6 mb-6">
           <div className="flex sm:flex-row flex-col items-center justify-center sm:justify-start relative z-10">
             <h1 className="text-3xl font-bold flex items-center text-white">
               {category.icon ? (
@@ -182,7 +182,7 @@ export default function CategoryPageClient() {
             ))}
           </div>
         ) : (
-          <div className="liquid-glass bg-white/10 border-0 rounded-lg shadow-2xl p-10 text-center flex flex-col items-center justify-center">
+          <div className="liquid-glass liquid-glass-static rounded-lg p-10 text-center flex flex-col items-center justify-center">
             <div className="relative z-10">
               <NoData />
               <p className="text-white/70 mt-8">该分类下暂无数据</p>

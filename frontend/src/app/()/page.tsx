@@ -85,7 +85,7 @@ export default function HomePage() {
       </div>
 
       <div className="hidden xl:block fixed left-[max(16px,calc(50%-520px-200px))] top-[100px] w-52 z-10">
-        <div className="liquid-glass bg-white/10 border-0 rounded-xl shadow-2xl">
+        <div className="liquid-glass liquid-glass-static rounded-xl">
           <div className="bg-white/5 backdrop-blur-sm px-6 py-4 border-b border-white/10 relative z-10">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-white/80 animate-pulse"></div>
@@ -161,7 +161,7 @@ export default function HomePage() {
 
       <div className="container mx-auto px-4 py-8 max-w-[960px]">
         <div className="xl:hidden mb-10">
-          <div className="liquid-glass bg-white/10 border-0 rounded-xl shadow-2xl">
+          <div className="liquid-glass liquid-glass-static rounded-xl">
             <div className="bg-white/5 backdrop-blur-sm px-6 py-4 border-b border-white/10 relative z-10">
               <h2 className="text-xl font-semibold text-white flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-white/80 animate-pulse"></div>
@@ -206,7 +206,7 @@ export default function HomePage() {
       </div>
 
       <div className="xl:hidden fixed bottom-6 right-6 z-50">
-        <div className="liquid-glass group w-14 h-14 rounded-2xl bg-white/15 border-0 shadow-2xl hover:shadow-3xl hover:bg-white/25 transition-all duration-300 hover:scale-105">
+        <div className="liquid-glass group w-14 h-14 rounded-2xl">
           <BackToTopButton className="flex items-center justify-center w-full h-full text-white/70 hover:text-white relative z-10">
             <svg
               xmlns="http://www.w3.org/2000/svg"
