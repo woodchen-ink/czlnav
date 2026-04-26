@@ -64,19 +64,21 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-              <LogIn className="h-8 w-8 text-white" />
+              <LogIn className="h-8 w-8 text-primary-foreground" />
             </div>
           </div>
           <CardTitle className="text-2xl">管理员登录</CardTitle>
-          <p className="text-gray-600">请使用CZL Connect账号登录后台管理系统</p>
+          <p className="text-muted-foreground">
+            请使用 CZL Connect 账号登录后台管理系统
+          </p>
         </CardHeader>
         <CardContent className="space-y-4">
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md text-red-700">
+            <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-md text-destructive">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               <span className="text-sm">{error}</span>
             </div>
@@ -92,7 +94,7 @@ export default function LoginPage() {
             {loading ? "登录中..." : "使用 CZL Connect 登录"}
           </Button>
 
-          <div className="text-center text-sm text-gray-500">
+          <div className="text-center text-sm text-muted-foreground">
             <p>登录后即可访问后台管理功能</p>
           </div>
         </CardContent>

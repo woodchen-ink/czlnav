@@ -68,7 +68,7 @@ export default function Pagination({
       {currentPage > 1 ? (
         <Link
           href={getPageUrl(currentPage - 1)}
-          className="px-3 py-2 rounded-md shadow-sm bg-white bg-opacity-80 text-gray-500 hover:bg-opacity-100 hover:text-brand-400 transition-colors"
+          className="px-3 py-2 rounded-md shadow-sm bg-white/80 text-foreground/70 hover:bg-white hover:text-foreground transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -85,7 +85,7 @@ export default function Pagination({
           </svg>
         </Link>
       ) : (
-        <span className="px-3 py-2 rounded-md shadow-sm bg-white text-brand-200 cursor-not-allowed">
+        <span className="px-3 py-2 rounded-md shadow-sm bg-white/60 text-foreground/30 cursor-not-allowed">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -106,12 +106,12 @@ export default function Pagination({
         <>
           <Link
             href={getPageUrl(1)}
-            className="px-3 py-2 rounded-md shadow-sm bg-white bg-opacity-80 text-gray-500 hover:bg-opacity-100 hover:text-brand-400 transition-colors"
+            className="px-3 py-2 rounded-md shadow-sm bg-white/80 text-foreground/70 hover:bg-white hover:text-foreground transition-colors"
           >
             1
           </Link>
           {pageNumbers[0] > 2 && (
-            <span className="px-3 py-2 text-gray-400">...</span>
+            <span className="px-3 py-2 text-white/50">...</span>
           )}
         </>
       )}
@@ -122,8 +122,8 @@ export default function Pagination({
           href={getPageUrl(page)}
           className={`px-3 py-2 rounded-md shadow-sm ${
             page === currentPage
-              ? "font-medium bg-brand-400 text-white"
-              : "bg-white text-gray-500 hover:text-brand-400"
+              ? "font-medium bg-foreground text-background"
+              : "bg-white/80 text-foreground/70 hover:bg-white hover:text-foreground"
           } transition-colors`}
         >
           {page}
@@ -133,11 +133,11 @@ export default function Pagination({
       {pageNumbers[pageNumbers.length - 1] < totalPages && (
         <>
           {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && (
-            <span className="px-2 py-1 text-gray-400">...</span>
+            <span className="px-2 py-1 text-white/50">...</span>
           )}
           <Link
             href={getPageUrl(totalPages)}
-            className="px-3 py-2 rounded-md shadow-sm bg-white bg-opacity-80 text-gray-500 hover:bg-opacity-100 hover:text-brand-400 transition-colors"
+            className="px-3 py-2 rounded-md shadow-sm bg-white/80 text-foreground/70 hover:bg-white hover:text-foreground transition-colors"
           >
             {totalPages}
           </Link>
@@ -147,7 +147,7 @@ export default function Pagination({
       {currentPage < totalPages ? (
         <Link
           href={getPageUrl(currentPage + 1)}
-          className="px-3 py-2 rounded-md shadow-sm bg-white bg-opacity-80 text-gray-500 hover:bg-opacity-100 hover:text-brand-400 transition-colors"
+          className="px-3 py-2 rounded-md shadow-sm bg-white/80 text-foreground/70 hover:bg-white hover:text-foreground transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -164,7 +164,7 @@ export default function Pagination({
           </svg>
         </Link>
       ) : (
-        <span className="px-3 py-2 rounded-md shadow-sm bg-white text-brand-200 cursor-not-allowed">
+        <span className="px-3 py-2 rounded-md shadow-sm bg-white/60 text-foreground/30 cursor-not-allowed">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"

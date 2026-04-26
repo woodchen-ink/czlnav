@@ -111,10 +111,10 @@ export default function CategoryPageClient() {
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-[960px] relative z-10">
-        <div className="pl-4 relative -bottom-1">
+        <div className="pl-4 relative z-10 translate-y-px">
           <Link
             href="/"
-            className="text-white/70 hover:text-white bg-white/10 backdrop-blur-xl border border-white/20 hover:border-white/40 pl-2 pr-3.5 py-2 rounded-t-lg text-sm inline-flex items-center transition-all duration-200"
+            className="text-white/70 hover:text-white bg-white/10 hover:bg-white/15 backdrop-blur-xl border border-white/20 hover:border-white/30 border-b-0 pl-2 pr-3.5 py-2 rounded-t-lg text-sm inline-flex items-center transition-all duration-200"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -134,7 +134,7 @@ export default function CategoryPageClient() {
           </Link>
         </div>
 
-        <div className="liquid-glass bg-white/10 border-0 rounded-lg shadow-2xl p-6 mb-6">
+        <div className="liquid-glass liquid-glass-static bg-white/10 border-0 rounded-lg rounded-tl-none shadow-2xl p-6 mb-6">
           <div className="flex sm:flex-row flex-col items-center justify-center sm:justify-start relative z-10">
             <h1 className="text-3xl font-bold flex items-center text-white">
               {category.icon ? (

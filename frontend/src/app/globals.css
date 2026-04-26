@@ -4,165 +4,190 @@
 
 * {
   font-family:
-    -apple-system, BlinkMacSystemFont, "Noto Sans SC", system-ui, "Segoe UI",
-    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue",
-    Helvetica, Arial, sans-serif;
+    -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC",
+    system-ui, "Segoe UI", "Hiragino Sans GB", "Microsoft YaHei",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+/*
+ * CZL 设计令牌 (明亮模式)
+ * 中性灰白主导 + 单一品牌色 #2EA7E0 (--brand) 极少出现
+ * --primary 为近黑 (主 CTA), --accent 为浅灰 (hover 交互态), 二者均不是品牌色
+ */
 :root {
-  --background: 30 12.5% 96.8627%;
-  --foreground: 0 0% 0%;
+  /* 背景层级: 页面浅灰 < 卡片纯白 < 浮层纯白 */
+  --background: 220 13% 97%;
+  --foreground: 0 0% 4%;
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 0%;
+  --card-foreground: 0 0% 4%;
   --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 0%;
-  --primary: 23.8835 44.9782% 55.098%;
+  --popover-foreground: 0 0% 4%;
+
+  /* 主 CTA: 近黑底 + 白字 */
+  --primary: 0 0% 4%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 96.0784%;
-  --secondary-foreground: 0 0% 0%;
-  --muted: 0 0% 89.8039%;
-  --muted-foreground: 0 0% 45.098%;
-  --accent: 23.8835 44.9782% 55.098%;
-  --accent-foreground: 0 0% 0%;
-  --destructive: 11.7857 44.0945% 50.1961%;
+
+  /* 次按钮 / tag 默认: 浅灰 + 近黑字 */
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 0 0% 4%;
+
+  /* 弱化背景 / 文字 */
+  --muted: 220 14% 96%;
+  --muted-foreground: 0 0% 32%;
+
+  /* hover / 交互态: 浅灰 (不是品牌色) */
+  --accent: 220 13% 93%;
+  --accent-foreground: 0 0% 4%;
+
+  /* 语义色 */
+  --destructive: 0 73% 50%;
   --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 89.8039%;
-  --input: 0 0% 89.8039%;
-  --ring: 23.8835 44.9782% 55.098%;
-  --chart-1: 23.8835 44.9782% 55.098%;
-  --chart-2: 11.7857 44.0945% 50.1961%;
-  --chart-3: 120 25% 42.3529%;
-  --chart-4: 346.0563 93.4211% 70.1961%;
-  --chart-5: 60 76.5432% 68.2353%;
-  --sidebar: 0 0% 96.0784%;
-  --sidebar-foreground: 0 0% 0%;
-  --sidebar-primary: 23.8835 44.9782% 55.098%;
+  --success: 142 71% 36%;
+  --success-foreground: 0 0% 100%;
+  --warning: 32 94% 44%;
+  --warning-foreground: 0 0% 100%;
+  --info: 215 25% 35%;
+  --info-foreground: 0 0% 100%;
+
+  /* 边框 / 输入框 */
+  --border: 220 13% 90%;
+  --input: 220 13% 90%;
+
+  /* 品牌色 + focus 光晕 (唯一允许 brand 高频出场的位置) */
+  --brand: 200 75% 53%;
+  --brand-foreground: 0 0% 100%;
+  --ring: 200 75% 53%;
+
+  /* 数据可视化色板 (避开 brand 青蓝区间) */
+  --chart-1: 220 60% 60%;
+  --chart-2: 152 42% 49%;
+  --chart-3: 28 76% 60%;
+  --chart-4: 275 50% 64%;
+  --chart-5: 340 70% 65%;
+  --chart-6: 45 65% 54%;
+
+  /* Sidebar (后台) */
+  --sidebar: 0 0% 100%;
+  --sidebar-foreground: 0 0% 4%;
+  --sidebar-primary: 0 0% 4%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 23.8835 44.9782% 55.098%;
-  --sidebar-accent-foreground: 0 0% 0%;
-  --sidebar-border: 0 0% 89.8039%;
-  --sidebar-ring: 23.8835 44.9782% 55.098%;
+  --sidebar-accent: 220 13% 93%;
+  --sidebar-accent-foreground: 0 0% 4%;
+  --sidebar-border: 220 13% 90%;
+  --sidebar-ring: 200 75% 53%;
+
   --radius: 0.5rem;
-  --shadow-2xs: 0 0 0 0 hsl(0 0% 0% / 0);
-  --shadow-xs: 0 0 0 0 hsl(0 0% 0% / 0);
-  --shadow-sm: 0 0 0 0 hsl(0 0% 0% / 0), 0 1px 2px -1px hsl(0 0% 0% / 0);
-  --shadow: 0 0 0 0 hsl(0 0% 0% / 0), 0 1px 2px -1px hsl(0 0% 0% / 0);
-  --shadow-md: 0 0 0 0 hsl(0 0% 0% / 0), 0 2px 4px -1px hsl(0 0% 0% / 0);
-  --shadow-lg: 0 0 0 0 hsl(0 0% 0% / 0), 0 4px 6px -1px hsl(0 0% 0% / 0);
-  --shadow-xl: 0 0 0 0 hsl(0 0% 0% / 0), 0 8px 10px -1px hsl(0 0% 0% / 0);
-  --shadow-2xl: 0 0 0 0 hsl(0 0% 0% / 0);
-  --tracking-normal: -0.025em;
+
+  /* 阴影台阶 (灰底浮卡核心) */
+  --shadow-2xs: 0 1px 1px hsl(0 0% 0% / 0.03);
+  --shadow-xs: 0 1px 2px hsl(0 0% 0% / 0.04);
+  --shadow-sm:
+    0 1px 2px hsl(0 0% 0% / 0.04), 0 1px 3px hsl(0 0% 0% / 0.06);
+  --shadow:
+    0 1px 3px hsl(0 0% 0% / 0.06), 0 1px 2px hsl(0 0% 0% / 0.04);
+  --shadow-md:
+    0 4px 6px -1px hsl(0 0% 0% / 0.08), 0 2px 4px -1px hsl(0 0% 0% / 0.04);
+  --shadow-lg:
+    0 10px 15px -3px hsl(0 0% 0% / 0.08), 0 4px 6px -2px hsl(0 0% 0% / 0.04);
+  --shadow-xl:
+    0 20px 25px -5px hsl(0 0% 0% / 0.1), 0 10px 10px -5px hsl(0 0% 0% / 0.04);
+  --shadow-2xl: 0 25px 50px -12px hsl(0 0% 0% / 0.18);
+
+  --tracking-normal: -0.01em;
 }
 
+/* 暗色模式: 页面深底 + 卡片更亮 + 阴影浮起 */
 .dark {
-  --background: 0 0% 10.1961%;
-  --foreground: 30 12.5% 96.8627%;
-  --card: 0 0% 14.902%;
-  --card-foreground: 30 12.5% 96.8627%;
-  --popover: 0 0% 14.902%;
-  --popover-foreground: 30 12.5% 96.8627%;
-  --primary: 23.8835 44.9782% 55.098%;
-  --primary-foreground: 0 0% 0%;
-  --secondary: 0 0% 25.098%;
-  --secondary-foreground: 30 12.5% 96.8627%;
-  --muted: 0 0% 25.098%;
-  --muted-foreground: 0 0% 63.9216%;
-  --accent: 23.8835 44.9782% 55.098%;
-  --accent-foreground: 0 0% 0%;
-  --destructive: 11.7857 44.0945% 50.1961%;
-  --destructive-foreground: 0 0% 0%;
-  --border: 0 0% 25.098%;
-  --input: 0 0% 14.902%;
-  --ring: 23.8835 44.9782% 55.098%;
-  --chart-1: 23.8835 44.9782% 55.098%;
-  --chart-2: 11.7857 44.0945% 50.1961%;
-  --chart-3: 120 25% 42.3529%;
-  --chart-4: 346.0563 93.4211% 70.1961%;
-  --chart-5: 60 76.5432% 68.2353%;
-  --sidebar: 0 0% 12.1569%;
-  --sidebar-foreground: 30 12.5% 96.8627%;
-  --sidebar-primary: 23.8835 44.9782% 55.098%;
-  --sidebar-primary-foreground: 0 0% 0%;
-  --sidebar-accent: 23.8835 44.9782% 55.098%;
-  --sidebar-accent-foreground: 0 0% 0%;
-  --sidebar-border: 0 0% 20%;
-  --sidebar-ring: 23.8835 44.9782% 55.098%;
-  --radius: 0.5rem;
-  --shadow-2xs: 0 0 0 0 hsl(0 0% 0% / 0);
-  --shadow-xs: 0 0 0 0 hsl(0 0% 0% / 0);
-  --shadow-sm: 0 0 0 0 hsl(0 0% 0% / 0), 0 1px 2px -1px hsl(0 0% 0% / 0);
-  --shadow: 0 0 0 0 hsl(0 0% 0% / 0), 0 1px 2px -1px hsl(0 0% 0% / 0);
-  --shadow-md: 0 0 0 0 hsl(0 0% 0% / 0), 0 2px 4px -1px hsl(0 0% 0% / 0);
-  --shadow-lg: 0 0 0 0 hsl(0 0% 0% / 0), 0 4px 6px -1px hsl(0 0% 0% / 0);
-  --shadow-xl: 0 0 0 0 hsl(0 0% 0% / 0), 0 8px 10px -1px hsl(0 0% 0% / 0);
-  --shadow-2xl: 0 0 0 0 hsl(0 0% 0% / 0);
+  --background: 240 4% 9%;
+  --foreground: 0 0% 93%;
+  --card: 0 0% 13%;
+  --card-foreground: 0 0% 93%;
+  --popover: 0 0% 16%;
+  --popover-foreground: 0 0% 93%;
+
+  --primary: 0 0% 98%;
+  --primary-foreground: 0 0% 4%;
+
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 93%;
+
+  --muted: 0 0% 11%;
+  --muted-foreground: 0 0% 63%;
+
+  --accent: 0 0% 15%;
+  --accent-foreground: 0 0% 93%;
+
+  --destructive: 0 80% 67%;
+  --destructive-foreground: 0 0% 4%;
+  --success: 142 65% 60%;
+  --success-foreground: 0 0% 4%;
+  --warning: 38 92% 60%;
+  --warning-foreground: 0 0% 4%;
+  --info: 215 20% 65%;
+  --info-foreground: 0 0% 4%;
+
+  --border: 0 0% 16%;
+  --input: 0 0% 16%;
+
+  --brand: 200 75% 62%;
+  --brand-foreground: 0 0% 4%;
+  --ring: 200 75% 62%;
+
+  --chart-1: 220 60% 70%;
+  --chart-2: 152 42% 60%;
+  --chart-3: 28 76% 70%;
+  --chart-4: 275 50% 75%;
+  --chart-5: 340 70% 75%;
+  --chart-6: 45 65% 65%;
+
+  --sidebar: 0 0% 11%;
+  --sidebar-foreground: 0 0% 93%;
+  --sidebar-primary: 0 0% 98%;
+  --sidebar-primary-foreground: 0 0% 4%;
+  --sidebar-accent: 0 0% 15%;
+  --sidebar-accent-foreground: 0 0% 93%;
+  --sidebar-border: 0 0% 16%;
+  --sidebar-ring: 200 75% 62%;
+
+  --shadow-2xs: 0 1px 1px hsl(0 0% 0% / 0.3);
+  --shadow-xs: 0 1px 2px hsl(0 0% 0% / 0.35);
+  --shadow-sm:
+    0 1px 2px hsl(0 0% 0% / 0.35), 0 1px 3px hsl(0 0% 0% / 0.4);
+  --shadow:
+    0 1px 3px hsl(0 0% 0% / 0.4), 0 1px 2px hsl(0 0% 0% / 0.35);
+  --shadow-md:
+    0 4px 6px -1px hsl(0 0% 0% / 0.45), 0 2px 4px -1px hsl(0 0% 0% / 0.35);
+  --shadow-lg:
+    0 10px 15px -3px hsl(0 0% 0% / 0.5), 0 4px 6px -2px hsl(0 0% 0% / 0.35);
+  --shadow-xl:
+    0 20px 25px -5px hsl(0 0% 0% / 0.55), 0 10px 10px -5px hsl(0 0% 0% / 0.35);
+  --shadow-2xl: 0 25px 50px -12px hsl(0 0% 0% / 0.7);
 }
 
 body {
   letter-spacing: var(--tracking-normal);
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #f8f7f6;
-    --foreground: #000000;
-    --foreground-rgb: 0, 0, 0;
-    --background-rgb: 248, 247, 246;
-
-    /* 保持shadcn变量在暗色模式下的一致性 */
-    --card: #ffffff;
-    --popover: #ffffff;
-  }
-}
-
-/* 全局背景渐变效果 */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: -10;
-  background:
-    radial-gradient(
-      circle at 20% 80%,
-      rgba(120, 119, 198, 0.3),
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 80% 20%,
-      rgba(255, 119, 198, 0.3),
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 40% 40%,
-      rgba(255, 255, 255, 0.1),
-      transparent 50%
-    );
-}
-
-/* Bento卡片高对比突出 */
-.bento-highlight {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 69, 58, 0.15),
-    rgba(255, 149, 0, 0.15),
-    rgba(175, 82, 222, 0.15)
-  ) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: rgba(255, 255, 255, 0.95) !important;
-  font-weight: 600 !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* SVG勾线图形动效 */
+/*
+ * 首页 / 分类页保留 liquid-glass 视觉, 这里仅保留兼容旧节点的 SVG 描边动效
+ */
 .tech-svg-outline {
   stroke: rgba(255, 255, 255, 0.4);
   stroke-width: 1px;
   fill: none;
   animation: svg-outline 8s ease-in-out infinite;
+}
+
+@keyframes svg-outline {
+  0%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dashoffset: 100;
+  }
 }
 
 @keyframes glass-refract {

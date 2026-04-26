@@ -137,8 +137,8 @@ const SortableRow: React.FC<SortableRowProps> = ({
             />
           </div>
         ) : (
-          <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
-            <Plus className="h-4 w-4 text-gray-400" />
+          <div className="w-10 h-10 bg-muted rounded flex items-center justify-center">
+            <Plus className="h-4 w-4 text-muted-foreground" />
           </div>
         )}
       </TableCell>
@@ -160,7 +160,7 @@ const SortableRow: React.FC<SortableRowProps> = ({
             size="icon"
             onClick={() => onDelete(category.id)}
             title="删除"
-            className="text-red-600 hover:text-red-700"
+            className="text-destructive hover:text-destructive/80"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -512,7 +512,7 @@ export default function CategoriesPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">
-                      分类名称 <span className="text-red-500">*</span>
+                      分类名称 <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="name"
@@ -523,7 +523,7 @@ export default function CategoriesPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="slug">
-                      英文标识 <span className="text-red-500">*</span>
+                      英文标识 <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="slug"

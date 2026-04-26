@@ -162,7 +162,7 @@ export default function AdminLayout({
   if (!authChecked || !isAuthorized) {
     return (
       <AdminAppProvider>
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 text-sm text-gray-500">
+        <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
           正在验证登录状态...
         </div>
       </AdminAppProvider>
@@ -171,30 +171,28 @@ export default function AdminLayout({
 
   return (
     <AdminAppProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         {/* 侧边栏 */}
         <div
-          className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 z-30 ${
+          className={`fixed left-0 top-0 h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 z-30 ${
             collapsed ? "w-16" : "w-64"
           }`}
         >
           {/* Logo 区域 */}
-          <div className="h-16 flex items-center justify-center border-b border-gray-200">
+          <div className="h-16 flex items-center justify-center border-b border-sidebar-border">
             {collapsed ? (
-              <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">
-                  {siteName.charAt(0)}
-                </span>
+              <div className="w-8 h-8 bg-foreground text-background rounded flex items-center justify-center">
+                <span className="font-bold text-sm">{siteName.charAt(0)}</span>
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">
+                <div className="w-8 h-8 bg-foreground text-background rounded flex items-center justify-center">
+                  <span className="font-bold text-sm">
                     {siteName.charAt(0)}
                   </span>
                 </div>
-                <span className="font-bold text-lg text-gray-800">
-                  {siteName}管理
+                <span className="font-semibold text-lg text-foreground">
+                  {siteName} 管理
                 </span>
               </div>
             )}
@@ -207,8 +205,8 @@ export default function AdminLayout({
                 <div
                   className={`flex items-center px-3 py-2 mb-1 rounded-lg transition-colors cursor-pointer ${
                     pathname === item.href
-                      ? "bg-primary text-primary-foreground"
-                      : "text-gray-600 hover:bg-gray-100"
+                      ? "bg-accent text-foreground font-medium"
+                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
                   }`}
                 >
                   {item.icon}
@@ -225,7 +223,7 @@ export default function AdminLayout({
           {/* 底部区域 */}
           <div className="absolute bottom-4 left-2 right-2">
             <Link href="/" target="_blank">
-              <div className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+              <div className="flex items-center px-3 py-2 text-muted-foreground hover:bg-accent/60 hover:text-foreground rounded-lg transition-colors cursor-pointer">
                 <Home className="h-4 w-4" />
                 {!collapsed && (
                   <span className="ml-3 text-sm font-medium">访问网站</span>
@@ -234,7 +232,7 @@ export default function AdminLayout({
             </Link>
             <div
               onClick={handleLogout}
-              className="flex items-center px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+              className="flex items-center px-3 py-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors cursor-pointer"
             >
               <LogOut className="h-4 w-4" />
               {!collapsed && (
@@ -251,7 +249,7 @@ export default function AdminLayout({
           }`}
         >
           {/* 顶部栏 */}
-          <header className="bg-white border-b border-gray-200 px-6 py-4">
+          <header className="bg-card border-b border-border px-6 py-4">
             <div className="flex items-center justify-between">
               <Button
                 variant="ghost"
@@ -264,7 +262,7 @@ export default function AdminLayout({
                   <X className="h-4 w-4" />
                 )}
               </Button>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-muted-foreground">
                 欢迎使用 {siteName} 管理后台
               </div>
             </div>

@@ -47,6 +47,23 @@
   z-index: 1;
 }
 
+/* 静态容器: 禁用 hover 效果 (用于非交互的展示卡片, 如分类标题) */
+.liquid-glass.liquid-glass-static:hover {
+  transform: none;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 50%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
 /* 悬停时的缩放和阴影过渡 */
 .liquid-glass:hover {
   color: rgba(255, 255, 255, 0.95);

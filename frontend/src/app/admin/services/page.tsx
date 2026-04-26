@@ -275,7 +275,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="name">
-              网站名称 <span className="text-red-500">*</span>
+              网站名称 <span className="text-destructive">*</span>
             </Label>
             <Input
               id="name"
@@ -286,7 +286,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="url">
-              网站地址 <span className="text-red-500">*</span>
+              网站地址 <span className="text-destructive">*</span>
             </Label>
             <div className="flex">
               <Input
@@ -317,7 +317,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="categoryId">
-              所属分类 <span className="text-red-500">*</span>
+              所属分类 <span className="text-destructive">*</span>
             </Label>
             <Select
               value={formData.categoryId.toString()}
@@ -449,7 +449,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
 
         <div className="space-y-2">
           <Label htmlFor="description">
-            网站描述 <span className="text-red-500">*</span>
+            网站描述 <span className="text-destructive">*</span>
           </Label>
           <Textarea
             id="description"
@@ -566,7 +566,7 @@ const SortableRow: React.FC<SortableRowProps> = ({
             size="icon"
             onClick={() => onDelete(service.id)}
             title="删除"
-            className="text-red-600 hover:text-red-700"
+            className="text-destructive hover:text-destructive/80"
           >
             <Trash2 className="h-4 w-4" />
           </Button>

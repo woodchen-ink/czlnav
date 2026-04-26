@@ -49,11 +49,11 @@ export default function AccountPage() {
           <CardContent>
             <div className="space-y-2">
               <Label>管理员ID</Label>
-              <p className="text-sm text-gray-600">{adminInfo.id}</p>
+              <p className="text-sm text-muted-foreground">{adminInfo.id}</p>
             </div>
             <div className="space-y-2">
               <Label>用户名</Label>
-              <p className="text-sm text-gray-600">{adminInfo.username}</p>
+              <p className="text-sm text-muted-foreground">{adminInfo.username}</p>
             </div>
           </CardContent>
         </Card>

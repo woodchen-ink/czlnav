@@ -25,7 +25,6 @@ export default function CategorySection({
           <h2 className="font-bold text-2xl text-white whitespace-nowrap">
             <Link href={`/c/${category.slug}`} className="-space-y-2">
               <span className="relative -top-0.5">{category.name}</span>
-              <span className="bg-brand-200 h-2 block w-full"></span>
             </Link>
           </h2>
         </div>

@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: ["class"],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,7 +9,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Shadcn UI 颜色系统
+        // shadcn 基础令牌
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -26,6 +27,18 @@ export default {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
@@ -42,12 +55,27 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // CZL 品牌色: 仅用于 focus ring / Logo / Hero 单一点缀 (#2EA7E0)
+        // 提供调色阶以兼容历史代码 (LiveSearch / Pagination 等)
+        brand: {
+          DEFAULT: "hsl(var(--brand))",
+          foreground: "hsl(var(--brand-foreground))",
+          50: "#EAF6FC",
+          100: "#D1ECF8",
+          200: "#A3D9F2",
+          300: "#75C5EB",
+          400: "#2EA7E0",
+          500: "#2192C7",
+          600: "#1B7BAA",
+          700: "#15648C",
+        },
         chart: {
           1: "hsl(var(--chart-1))",
           2: "hsl(var(--chart-2))",
           3: "hsl(var(--chart-3))",
           4: "hsl(var(--chart-4))",
           5: "hsl(var(--chart-5))",
+          6: "hsl(var(--chart-6))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar))",

@@ -33,13 +33,13 @@ export default function Navbar({ siteName }: NavbarProps) {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full bg-slate-900 transition-all duration-300 ${
-        isScrolled ? "shadow-md" : "shadow-sm"
+      className={`sticky top-0 z-50 w-full backdrop-blur-md border-b border-white/10 transition-all duration-300 ${
+        isScrolled ? "bg-black/25 shadow-md" : "bg-black/10"
       }`}
     >
       <div className="container mx-auto px-4 py-4 max-w-[960px]">
         <div className="flex flex-col md:flex-row items-center justify-between">
-          {/* 左侧Logo */}
+          {/* 左侧 Logo */}
           <div className="flex items-center mb-4 md:mb-0 md:w-1/4">
             <Link
               href="/"
@@ -48,7 +48,7 @@ export default function Navbar({ siteName }: NavbarProps) {
               <Logo
                 width={40}
                 height={40}
-                fill="white" // 或者 fill="#ffffff"
+                fill="currentColor"
                 className="mr-1.5"
               />
               <div>{siteName}</div>
@@ -68,10 +68,10 @@ export default function Navbar({ siteName }: NavbarProps) {
               <li className="hidden md:block">
                 <a
                   href="/admin"
-                  className={`hover:text-primary transition-colors ${
+                  className={`transition-colors ${
                     pathname === "/admin"
-                      ? "font-medium text-primary"
-                      : "text-white"
+                      ? "font-medium text-white"
+                      : "text-white/70 hover:text-white"
                   }`}
                   title="管理"
                 >

@@ -224,11 +224,11 @@ export default function LiveSearch() {
             className={`flex items-center ${
               isFocused || (showResults && results.length > 0)
                 ? "bg-white shadow-md"
-                : "bg-gray-50"
-            } border-2 ${
+                : "bg-white/95"
+            } border ${
               isFocused || (showResults && results.length > 0)
-                ? "border-brand-400"
-                : "border-gray-200"
+                ? "border-foreground/80 ring-2 ring-ring/30"
+                : "border-border"
             } ${
               showResults && results.length > 0
                 ? "rounded-tl-lg rounded-tr-lg rounded-bl-none rounded-br-none"
@@ -236,12 +236,12 @@ export default function LiveSearch() {
             } overflow-hidden relative z-10`}
             style={{
               borderBottomWidth:
-                showResults && results.length > 0 ? "0px" : "2px",
-              marginBottom: showResults && results.length > 0 ? "2px" : "0px",
+                showResults && results.length > 0 ? "0px" : "1px",
+              marginBottom: showResults && results.length > 0 ? "1px" : "0px",
               transition: "background-color 0.2s, border-color 0.2s",
             }}
           >
-            <div className="pl-3 text-gray-500">
+            <div className="pl-3 text-muted-foreground">
               <SearchIcon className="w-5 h-5" />
             </div>
             <input
@@ -257,15 +257,15 @@ export default function LiveSearch() {
               }}
               onBlur={() => setIsFocused(false)}
               onKeyDown={handleKeyDown}
-              placeholder="搜索导航内容，找不到时会使用Google搜索..."
-              className="w-full py-2 px-3 text-sm bg-transparent border-none focus:outline-none focus:ring-0"
+              placeholder="搜索导航内容，找不到时会使用 Google 搜索..."
+              className="w-full py-2 px-3 text-sm bg-transparent border-none focus:outline-none focus:ring-0 text-foreground placeholder:text-muted-foreground"
               autoComplete="off"
             />
             {query && (
               <button
                 type="button"
                 onClick={handleSearchButtonClick}
-                className="w-20 m-0.5 px-4 py-1.5 rounded-md bg-brand-400 text-white text-sm font-medium hover:bg-brand-500 transition-colors"
+                className="w-20 m-0.5 px-4 py-1.5 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
               >
                 搜索
               </button>
@@ -277,13 +277,11 @@ export default function LiveSearch() {
         {showResults && results.length > 0 && (
           <div
             ref={resultsRef}
-            className="absolute w-full bg-white overflow-hidden custom-scrollbar max-h-80 overflow-y-auto border-2 border-brand-400 rounded-b-lg z-0"
+            className="absolute w-full bg-popover overflow-hidden custom-scrollbar max-h-80 overflow-y-auto border border-foreground/80 rounded-b-lg z-0 shadow-lg"
             style={{
-              boxShadow:
-                "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)",
-              top: "calc(100% - 2px)", // 向上偏移2px，与搜索框边框重叠
-              borderTopWidth: "0", // 移除顶部边框
-              transition: "none", // 禁用任何可能的过渡动画
+              top: "calc(100% - 1px)",
+              borderTopWidth: "0",
+              transition: "none",
             }}
           >
             <div>
@@ -291,10 +289,10 @@ export default function LiveSearch() {
                 <div
                   key={result.id}
                   data-result-item
-                  className={`px-4 py-3 border-y border-transparent cursor-pointer transition-colors duration-150 ${
+                  className={`px-4 py-3 cursor-pointer transition-colors duration-150 ${
                     selectedIndex === index
-                      ? "bg-brand-50 border-brand-100"
-                      : "hover:bg-brand-50"
+                      ? "bg-accent"
+                      : "hover:bg-accent/60"
                   }`}
                   onClick={() => handleResultClick(result)}
                   onMouseEnter={() => setSelectedIndex(index)}
@@ -310,20 +308,20 @@ export default function LiveSearch() {
                           unoptimized={result.icon.endsWith(".svg")}
                         />
                       ) : (
-                        <div className="w-10 h-10 bg-brand-100 rounded-lg flex items-center justify-center text-brand-400 font-medium">
+                        <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center text-foreground font-medium">
                           {result.name.charAt(0)}
                         </div>
                       )}
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-800 flex items-center">
+                      <div className="text-sm font-medium text-foreground flex items-center">
                         {result.name}
                       </div>
-                      <div className="text-xs text-gray-400 line-clamp-1 mt-0.5">
+                      <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
                         {result.description}
                       </div>
                     </div>
-                    <div className="px-3 py-1 text-xs font-normal rounded-full flex items-center text-brand-300 bg-brand-100">
+                    <div className="px-3 py-1 text-xs font-normal rounded-full flex items-center text-muted-foreground bg-muted">
                       {result.categoryName}
                     </div>
                   </div>
@@ -336,7 +334,7 @@ export default function LiveSearch() {
         {/* 加载指示器 */}
         {loading && (
           <div className="absolute right-24 top-2.5">
-            <div className="w-5 h-5 border-2 border-gray-200 border-t-brand-400 rounded-full animate-spin"></div>
+            <div className="w-5 h-5 border-2 border-border border-t-foreground rounded-full animate-spin"></div>
           </div>
         )}
       </div>
