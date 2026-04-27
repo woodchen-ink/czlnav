@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import LiquidGlassEffect from "@/components/LiquidGlassEffect";
+import SmoothScroll from "@/components/SmoothScroll";
 
 interface PublicSettings {
   siteName: string;
@@ -50,6 +51,7 @@ export default function PublicSiteShell({ children }: PublicSiteShellProps) {
   return (
     <div className="flex flex-col min-h-screen">
       <LiquidGlassEffect />
+      <SmoothScroll />
       <Navbar siteName={settings.siteName} />
       <main className="flex-grow">{children}</main>
       <Footer
