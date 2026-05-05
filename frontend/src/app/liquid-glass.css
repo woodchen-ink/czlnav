@@ -1,46 +1,31 @@
 /*
- * Liquid Glass —— 接近 iOS 26 的真折射玻璃
+ * Frosted Glass —— 传统毛玻璃 (替代 Liquid Glass 真折射方案)
  *
- * backdrop-filter 由 LiquidGlassEffect.tsx 在运行时注入:
- *   backdrop-filter: url(#filter-id) blur(2px) saturate(180%) brightness(1.05)
- * 其中 url(#filter-id) 是 SVG feDisplacementMap, 用 SDF 算的位移图扭曲背后内容,
- * 只在元素边缘附近做位移, 中心区不动 —— 视觉上就是真实玻璃透镜的"边缘弯曲".
- *
- * 以下 CSS 只负责: 透明底色、边缘三层描边、阴影、过渡.
- * 如果浏览器不支持 backdrop-filter url(), 退化为普通毛玻璃.
+ * 设计取向: 可读性优先, 不追求 iOS 26 折射拟真.
+ * 实现: backdrop-filter blur + saturate 提色 + 半透深底压住背景纹理 + 细边描边.
  */
 
 .liquid-glass {
   position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  background: rgba(255, 255, 255, 0.04);
-  /* 退化方案: 如果 SVG filter 没注入, 至少有一层模糊 */
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  /* 边缘三层光: 外细亮边 (玻璃外缘) + 顶高光 + 底暗影 */
+  background: rgba(20, 24, 32, 0.78);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 6px 20px rgba(0, 0, 0, 0.22),
     0 18px 40px rgba(0, 0, 0, 0.16);
-  border: none;
-  transition: box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
-/* 内容层 —— 在折射层之上 */
-.liquid-glass > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* hover: 仅加深边光厚度感, 不抬起、不变色 */
 .liquid-glass:hover {
+  background: rgba(28, 32, 40, 0.85);
+  border-color: rgba(255, 255, 255, 0.18);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 8px 24px rgba(0, 0, 0, 0.26),
     0 20px 44px rgba(0, 0, 0, 0.18);
 }
