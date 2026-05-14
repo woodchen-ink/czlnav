@@ -21,6 +21,7 @@ func New(deps *handler.Deps) http.Handler {
 	r.Use(chiMiddleware.RealIP)
 	r.Use(chiMiddleware.Recoverer)
 	r.Use(chiMiddleware.StripSlashes)
+	r.Use(headAsGet)
 
 	r.Route("/api", func(ar chi.Router) {
 		ar.Use(chiMiddleware.NoCache)
@@ -154,6 +155,31 @@ func withCache(h http.HandlerFunc, cacheControl string) http.HandlerFunc {
 		w.Header().Set("Cache-Control", cacheControl)
 		h(w, r)
 	}
+}
+
+// headAsGet 让 HEAD 请求走 GET 路由, 但不发送响应体.
+// 背景: chi 默认 HEAD 命中只注册了 GET 的路由 ⇒ 405; 同时 net/http 仅在 req.Method=="HEAD"
+// 时自动抑制 body, 所以我们克隆一份 req 改为 GET 给 chi 匹配, headBlockingWriter 丢弃 body.
+// 目的: 链接预览 / uptime monitor / SEO 抓取等会发 HEAD 的客户端不再吃 405.
+func headAsGet(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodHead {
+			next.ServeHTTP(w, r)
+			return
+		}
+		clone := r.Clone(r.Context())
+		clone.Method = http.MethodGet
+		next.ServeHTTP(&headBlockingWriter{ResponseWriter: w}, clone)
+	})
+}
+
+// headBlockingWriter 透传 header 与 status, 但丢弃所有 body 写入
+type headBlockingWriter struct {
+	http.ResponseWriter
+}
+
+func (h *headBlockingWriter) Write(b []byte) (int, error) {
+	return len(b), nil
 }
 
 // cachedFileServer 包一层 Cache-Control, 调用方按路径用途选 cacheControl
