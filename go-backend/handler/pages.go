@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"czlnav/config"
 	"errors"
 	"net/http"
 	"os"
@@ -56,6 +57,26 @@ func (d *Deps) ServeAdminPage(w http.ResponseWriter, r *http.Request) {
 		path = "."
 	}
 	d.serveAdminPath(w, r, path)
+}
+
+// ServeServiceWorker 提供 /sw.js, 把 __APP_VERSION__ 占位符替换成构建期注入的版本号.
+// sw.js 自身永不缓存; 版本号变 ⇒ SW 字节变 ⇒ 浏览器走 update 流程 ⇒ activate 清旧 cache.
+func (d *Deps) ServeServiceWorker(w http.ResponseWriter, r *http.Request) {
+	path := filepath.Join(d.Config.FrontendDistDir, "sw.js")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	content := strings.ReplaceAll(string(data), "__APP_VERSION__", config.Version)
+
+	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
+	w.Header().Set("Service-Worker-Allowed", "/")
+	_, _ = w.Write([]byte(content))
 }
 
 func (d *Deps) ServeFrontendAsset(w http.ResponseWriter, r *http.Request) {

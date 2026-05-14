@@ -13,6 +13,7 @@ import (
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 )
 
+// 路由总装: /api/* 全程禁缓存; 静态资源按路径区分长短缓存; HTML 与 sw.js 不缓存.
 func New(deps *handler.Deps) http.Handler {
 	r := chi.NewRouter()
 
@@ -20,104 +21,143 @@ func New(deps *handler.Deps) http.Handler {
 	r.Use(chiMiddleware.RealIP)
 	r.Use(chiMiddleware.Recoverer)
 	r.Use(chiMiddleware.StripSlashes)
-	r.Use(chiMiddleware.NoCache)
 
-	r.Get("/api/health", deps.Health)
-	r.Get("/api/settings", deps.GetPublicSettings)
-	r.Get("/api/public/home", deps.GetPublicHome)
-	r.Get("/api/public/category/{slug}", deps.GetPublicCategory)
-	r.Get("/api/live-search", deps.LiveSearch)
-	r.Post("/api/services/{id}/click", deps.ClickService)
+	r.Route("/api", func(ar chi.Router) {
+		ar.Use(chiMiddleware.NoCache)
 
-	r.Get("/api/auth/login", deps.AuthLogin)
-	r.Get("/api/auth/callback", deps.AuthCallback)
-	r.Post("/api/auth/logout", deps.AuthLogout)
+		ar.Get("/health", deps.Health)
+		ar.Get("/settings", deps.GetPublicSettings)
+		ar.Get("/public/home", deps.GetPublicHome)
+		ar.Get("/public/category/{slug}", deps.GetPublicCategory)
+		ar.Get("/live-search", deps.LiveSearch)
+		ar.Post("/services/{id}/click", deps.ClickService)
 
-	r.Group(func(ar chi.Router) {
-		ar.Use(middleware.AdminAuth(deps.Cache, deps.OAuth))
+		ar.Get("/auth/login", deps.AuthLogin)
+		ar.Get("/auth/callback", deps.AuthCallback)
+		ar.Post("/auth/logout", deps.AuthLogout)
 
-		ar.Get("/api/admin/account", deps.GetAccount)
-		ar.Put("/api/admin/account/password", deps.ChangePassword)
-		ar.Get("/api/admin/cache", deps.GetCacheInfo)
-		ar.Delete("/api/admin/cache", deps.ClearCache)
-		ar.Get("/api/admin/categories", deps.ListCategories)
-		ar.Post("/api/admin/categories", deps.CreateCategory)
-		ar.Post("/api/admin/categories/reorder", deps.ReorderCategories)
-		ar.Get("/api/admin/categories/{id}", deps.GetCategory)
-		ar.Put("/api/admin/categories/{id}", deps.UpdateCategory)
-		ar.Delete("/api/admin/categories/{id}", deps.DeleteCategory)
-		ar.Get("/api/admin/services", deps.ListServices)
-		ar.Post("/api/admin/services", deps.CreateService)
-		ar.Post("/api/admin/services/reorder", deps.ReorderServices)
-		ar.Get("/api/admin/services/{id}", deps.GetService)
-		ar.Put("/api/admin/services/{id}", deps.UpdateService)
-		ar.Delete("/api/admin/services/{id}", deps.DeleteService)
-		ar.Get("/api/admin/settings", deps.GetAdminSettings)
-		ar.Put("/api/admin/settings", deps.UpdateSettings)
-		ar.Get("/api/admin/stats", deps.GetStats)
-		ar.Post("/api/admin/upload", deps.UploadFile)
-		ar.Post("/api/admin/fetch-site-info", deps.FetchSiteInfo)
-		ar.Post("/api/admin/download-icon", deps.DownloadIcon)
+		ar.Group(func(adminAPI chi.Router) {
+			adminAPI.Use(middleware.AdminAuth(deps.Cache, deps.OAuth))
+
+			adminAPI.Get("/admin/account", deps.GetAccount)
+			adminAPI.Put("/admin/account/password", deps.ChangePassword)
+			adminAPI.Get("/admin/cache", deps.GetCacheInfo)
+			adminAPI.Delete("/admin/cache", deps.ClearCache)
+			adminAPI.Get("/admin/categories", deps.ListCategories)
+			adminAPI.Post("/admin/categories", deps.CreateCategory)
+			adminAPI.Post("/admin/categories/reorder", deps.ReorderCategories)
+			adminAPI.Get("/admin/categories/{id}", deps.GetCategory)
+			adminAPI.Put("/admin/categories/{id}", deps.UpdateCategory)
+			adminAPI.Delete("/admin/categories/{id}", deps.DeleteCategory)
+			adminAPI.Get("/admin/services", deps.ListServices)
+			adminAPI.Post("/admin/services", deps.CreateService)
+			adminAPI.Post("/admin/services/reorder", deps.ReorderServices)
+			adminAPI.Get("/admin/services/{id}", deps.GetService)
+			adminAPI.Put("/admin/services/{id}", deps.UpdateService)
+			adminAPI.Delete("/admin/services/{id}", deps.DeleteService)
+			adminAPI.Get("/admin/settings", deps.GetAdminSettings)
+			adminAPI.Put("/admin/settings", deps.UpdateSettings)
+			adminAPI.Get("/admin/stats", deps.GetStats)
+			adminAPI.Post("/admin/upload", deps.UploadFile)
+			adminAPI.Post("/admin/fetch-site-info", deps.FetchSiteInfo)
+			adminAPI.Post("/admin/download-icon", deps.DownloadIcon)
+		})
 	})
 
-	if staticFileServer := fileServer("/static/", deps.Config.StaticDir); staticFileServer != nil {
-		r.Mount("/static", staticFileServer)
-	}
-
-	if nextAssets := fileServer("/_next/", filepath.Join(deps.Config.FrontendDistDir, "_next")); nextAssets != nil {
+	// 内容哈希命名, 永久 immutable
+	if nextAssets := cachedFileServer("/_next/", filepath.Join(deps.Config.FrontendDistDir, "_next"), cacheImmutable); nextAssets != nil {
 		r.Mount("/_next", nextAssets)
 	}
 
-	if uploadFileServer := fileServer("/uploads/", deps.Config.UploadDir); uploadFileServer != nil {
+	// 名字不带哈希, 中等缓存
+	if staticFileServer := cachedFileServer("/static/", deps.Config.StaticDir, cacheMedium); staticFileServer != nil {
+		r.Mount("/static", staticFileServer)
+	}
+
+	// 用户上传, 短缓存
+	if uploadFileServer := cachedFileServer("/uploads/", deps.Config.UploadDir, cacheShort); uploadFileServer != nil {
 		r.Mount("/uploads", uploadFileServer)
 	}
 
-	r.Get("/favicon.ico", deps.ServeFrontendAsset)
-	r.Get("/logo.png", deps.ServeFrontendAsset)
-	r.Get("/logo.svg", deps.ServeFrontendAsset)
+	r.Get("/favicon.ico", withCache(deps.ServeFrontendAsset, cacheMedium))
+	r.Get("/logo.png", withCache(deps.ServeFrontendAsset, cacheMedium))
+	r.Get("/logo.svg", withCache(deps.ServeFrontendAsset, cacheMedium))
 
-	r.Get("/admin/login", deps.ServeAdminLogin)
+	// Service Worker 入口: 永不缓存, 由 Go 注入版本号占位符
+	r.Get("/sw.js", deps.ServeServiceWorker)
+
+	r.Get("/admin/login", withHTMLNoCache(deps.ServeAdminLogin))
 	adminPageHandler := middleware.AdminAuth(deps.Cache, deps.OAuth)(http.HandlerFunc(deps.ServeAdminPage))
-	r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
-		adminPageHandler.ServeHTTP(w, r)
-	})
-	r.Get("/admin/*", func(w http.ResponseWriter, r *http.Request) {
-		adminPath := strings.TrimPrefix(r.URL.Path, "/admin/")
+	r.Get("/admin", withHTMLNoCache(func(w http.ResponseWriter, req *http.Request) {
+		adminPageHandler.ServeHTTP(w, req)
+	}))
+	r.Get("/admin/*", func(w http.ResponseWriter, req *http.Request) {
+		adminPath := strings.TrimPrefix(req.URL.Path, "/admin/")
 		if filepath.Ext(adminPath) != "" || strings.Contains(adminPath, "__next") {
-			deps.ServeFrontendAsset(w, r)
+			deps.ServeFrontendAsset(w, req)
 			return
 		}
-		adminPageHandler.ServeHTTP(w, r)
+		setHTMLNoCache(w)
+		adminPageHandler.ServeHTTP(w, req)
 	})
 
-	r.Get("/", deps.ServeHome)
-	r.Get("/c/{slug}", deps.ServeCategory)
-	r.Get("/c/{slug}/page/{page}", func(w http.ResponseWriter, r *http.Request) {
-		page := chi.URLParam(r, "page")
-		q := r.URL.Query()
+	r.Get("/", withHTMLNoCache(deps.ServeHome))
+	r.Get("/c/{slug}", withHTMLNoCache(deps.ServeCategory))
+	r.Get("/c/{slug}/page/{page}", withHTMLNoCache(func(w http.ResponseWriter, req *http.Request) {
+		page := chi.URLParam(req, "page")
+		q := req.URL.Query()
 		if _, err := strconv.Atoi(page); err == nil {
 			q.Set("page", page)
-			r.URL.RawQuery = q.Encode()
+			req.URL.RawQuery = q.Encode()
 		}
-		deps.ServeCategory(w, r)
-	})
+		deps.ServeCategory(w, req)
+	}))
 
-	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/_next/") || filepath.Ext(r.URL.Path) != "" {
-			deps.ServeFrontendAsset(w, r)
+	r.NotFound(func(w http.ResponseWriter, req *http.Request) {
+		if strings.HasPrefix(req.URL.Path, "/_next/") || filepath.Ext(req.URL.Path) != "" {
+			deps.ServeFrontendAsset(w, req)
 			return
 		}
-		if strings.HasPrefix(r.URL.Path, "/admin/") && !strings.HasPrefix(r.URL.Path, "/admin/assets/") {
-			adminPageHandler.ServeHTTP(w, r)
+		if strings.HasPrefix(req.URL.Path, "/admin/") && !strings.HasPrefix(req.URL.Path, "/admin/assets/") {
+			setHTMLNoCache(w)
+			adminPageHandler.ServeHTTP(w, req)
 			return
 		}
-		http.NotFound(w, r)
+		http.NotFound(w, req)
 	})
 
 	return r
 }
 
-func fileServer(prefix, root string) http.Handler {
+const (
+	cacheImmutable = "public, max-age=31536000, immutable"
+	cacheMedium    = "public, max-age=86400"
+	cacheShort     = "public, max-age=3600"
+)
+
+// HTML 必须每次回服务端拿最新占位符注入结果, 不缓存
+func setHTMLNoCache(w http.ResponseWriter) {
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
+}
+
+func withHTMLNoCache(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		setHTMLNoCache(w)
+		h(w, r)
+	}
+}
+
+func withCache(h http.HandlerFunc, cacheControl string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", cacheControl)
+		h(w, r)
+	}
+}
+
+// cachedFileServer 包一层 Cache-Control, 调用方按路径用途选 cacheControl
+func cachedFileServer(prefix, root, cacheControl string) http.Handler {
 	if root == "" {
 		return nil
 	}
@@ -127,7 +167,7 @@ func fileServer(prefix, root string) http.Handler {
 
 	fs := http.StripPrefix(strings.TrimRight(prefix, "/"), http.FileServer(http.Dir(root)))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "public, max-age=300")
+		w.Header().Set("Cache-Control", cacheControl)
 		fs.ServeHTTP(w, r)
 	})
 }

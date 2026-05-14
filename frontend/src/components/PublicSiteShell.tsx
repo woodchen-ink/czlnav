@@ -47,6 +47,27 @@ export default function PublicSiteShell({ children }: PublicSiteShellProps) {
     fetchSettings();
   }, []);
 
+  // 注册 Service Worker (仅生产环境 + 浏览器支持时)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator)) return;
+    if (window.location.protocol !== "https:" && window.location.hostname !== "localhost") return;
+
+    const register = () => {
+      navigator.serviceWorker
+        .register("/sw.js", { scope: "/" })
+        .catch((err) => {
+          console.warn("Service Worker 注册失败:", err);
+        });
+    };
+
+    if (document.readyState === "complete") {
+      register();
+    } else {
+      window.addEventListener("load", register, { once: true });
+    }
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
       <SmoothScroll />

@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+// Version 由 build 时 -ldflags "-X czlnav/config.Version=..." 注入
+// 注入逻辑: GitHub Actions 在 tag 触发时把 ref_name 传给 Dockerfile 的 APP_VERSION ARG;
+// 本地或非 tag 构建保持 "dev", 仍能用, 但 Service Worker 不会按版本切换.
+var Version = "dev"
+
 type Config struct {
 	Env                    string
 	AppURL                 string

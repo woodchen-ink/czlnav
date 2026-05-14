@@ -11,6 +11,8 @@ RUN npm run build
 
 FROM golang:1.25-alpine AS go-builder
 
+ARG APP_VERSION=dev
+
 WORKDIR /src
 
 COPY go-backend/go.mod go-backend/go.sum ./go-backend/
@@ -18,7 +20,8 @@ RUN cd go-backend && go mod download
 
 COPY go-backend ./go-backend
 
-RUN cd go-backend && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /out/czlnav .
+RUN cd go-backend && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -ldflags="-s -w -X czlnav/config.Version=${APP_VERSION}" -o /out/czlnav .
 
 FROM alpine:3.21
 
