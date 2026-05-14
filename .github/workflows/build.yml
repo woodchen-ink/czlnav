@@ -98,3 +98,16 @@ jobs:
             APP_VERSION=${{ steps.version.outputs.value }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # 触发 Dokploy 自动部署; 完整 URL 走 secret 防止公网暴露后被任意触发
+      # 未配置 secret 时 step 内自跳过, 不让仓库 fork / 初次跑的人挂红
+      - name: Trigger Dokploy deploy webhook
+        env:
+          DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+        run: |
+          if [ -z "${DEPLOY_WEBHOOK_URL}" ]; then
+            echo "DEPLOY_WEBHOOK_URL not set, skipping."
+            exit 0
+          fi
+          curl --fail --silent --show-error --retry 3 --retry-delay 5 \
+            -X POST "${DEPLOY_WEBHOOK_URL}"
