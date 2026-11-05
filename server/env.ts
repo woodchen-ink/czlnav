@@ -7,6 +7,10 @@ export interface Env {
   AUTH_CALLBACK_URL?: string;
   // 可选, 逗号分隔的 CZL Connect 用户 id 或 username; 不填则任何能登录 CZL Connect 的账号都是管理员 (旧版行为).
   ADMIN_USERS?: string;
+  // 后台写操作后触发 CNB 构建发布; 只需 repo-cnb-trigger:rw 权限. 不填则只保存, 前台要等下次构建才更新.
+  CNB_TRIGGER_TOKEN?: string;
+  // 默认 czl/czlnav
+  CNB_REPO?: string;
 }
 
 export function readEnv(raw: unknown): Env {
@@ -20,5 +24,7 @@ export function readEnv(raw: unknown): Env {
     CZL_CONNECT_CLIENT_SECRET: pick("CZL_CONNECT_CLIENT_SECRET"),
     AUTH_CALLBACK_URL: pick("AUTH_CALLBACK_URL"),
     ADMIN_USERS: pick("ADMIN_USERS"),
+    CNB_TRIGGER_TOKEN: pick("CNB_TRIGGER_TOKEN"),
+    CNB_REPO: pick("CNB_REPO"),
   };
 }

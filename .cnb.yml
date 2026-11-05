@@ -1,11 +1,43 @@
+# 构建并发布到 EdgeOne Makers (项目 czlnav).
+# 代码由 GitHub 经 .github/workflows/sync-cnb.yml 同步过来.
+#
+# 触发方式 (同一条流水线):
+#   push                 代码更新
+#   api_trigger_publish  后台保存内容后由函数调用 OpenAPI 触发 (server/publish.ts)
+#   web_trigger_publish  在 CNB 页面手动发布
+#
+# 密钥: EDGEONE_API_TOKEN 放在密钥仓库 czl/secrets 的 czlnav.yml, 同时用于读 Blob 数据和部署.
+# lock + cancel-in-progress: 连续触发时取消正在跑的旧构建, 只发布最后一次.
+
 main:
   push:
-    - services:
-        - docker
+    - &deploy
+      name: deploy-edgeone
+      docker:
+        image: node:24
+        volumes:
+          - /root/.npm:copy-on-write
+      imports:
+        - https://cnb.cool/czl/secrets/-/blob/main/czlnav.yml
+      env:
+        EDGEONE_PROJECT_ID: makers-q7e2laxlspsn
+        PAGES_SOURCE: cnb
+      lock:
+        key: edgeone-deploy
+        cancel-in-progress: true
       stages:
-        - name: docker build
-          script: docker build -t ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest .
-        - name: docker push
-          script: docker push ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest
-        - name: deploy webhook
-          script: curl -X POST https://dp.czl.net/api/deploy/j84haybZTRkNsvAQiKgHm
+        - name: install
+          script: |
+            npm ci --no-audit --no-fund
+            npm install -g edgeone@1.6.47 --no-audit --no-fund
+        - name: fetch site data
+          # 必须在 deploy 之前单独执行: CLI 跑 buildCommand 时不透传外层环境变量, 拿不到 Blob 令牌
+          script: node scripts/build-site-data.ts
+        - name: build and deploy
+          # deploy 按 edgeone.json 执行 installCommand / buildCommand (前端预渲染 + SW 版本注入) 后上传.
+          # SW 版本取构建时间戳 (CLI 不透传 APP_VERSION), 内容发布时也会变化, 旧页面缓存随之清掉.
+          script: edgeone makers deploy -n czlnav -e production -a global -t "$EDGEONE_API_TOKEN" --json
+  api_trigger_publish:
+    - *deploy
+  web_trigger_publish:
+    - *deploy

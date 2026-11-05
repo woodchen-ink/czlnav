@@ -1,81 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import ServiceCard from "@/components/ServiceCard";
 import Pagination from "@/components/Pagination";
-import { Category, Service } from "@/types";
+import type { PublicCategory } from "@/lib/site-data";
 import { NoData } from "@/components/icons/NoData";
 import "@/app/liquid-glass.css";
 
-interface PublicCategoryPayload {
-  category: Category;
-  services: Service[];
-  currentPage: number;
-  totalPages: number;
-  totalCount: number;
+const PAGE_SIZE = 24;
+
+interface CategoryViewProps {
+  category: PublicCategory;
+  page: number;
 }
 
-export default function CategoryPageClient() {
-  const pathname = usePathname();
+// 按 ?page= 渲染. 构建期 HTML 里是第 1 页 (Suspense fallback), 水合后按实际页码切换.
+export default function CategoryPageClient({ category }: { category: PublicCategory }) {
   const searchParams = useSearchParams();
+  const page = Math.max(1, Number(searchParams.get("page")) || 1);
+  return <CategoryView category={category} page={page} />;
+}
 
-  const slug = pathname.replace(/^\/c\//, "").split("/")[0];
-  const page = Math.max(1, Number(searchParams.get("page") || "1"));
-
-  const [payload, setPayload] = useState<PublicCategoryPayload | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchCategory = async () => {
-      if (!slug) {
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-
-      try {
-        const response = await fetch(
-          `/api/public/category/${encodeURIComponent(slug)}?page=${page}`
-        );
-        const data = await response.json();
-
-        if (data.success) {
-          setPayload(data.data);
-        } else {
-          setPayload(null);
-        }
-      } catch (error) {
-        console.error("获取分类数据失败:", error);
-        setPayload(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategory();
-  }, [slug, page]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-white">
-        正在加载分类内容...
-      </div>
-    );
-  }
-
-  if (!payload) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-white">
-        分类不存在或加载失败
-      </div>
-    );
-  }
-
-  const { category, services, totalCount, totalPages, currentPage } = payload;
+export function CategoryView({ category, page }: CategoryViewProps) {
+  const totalCount = category.services.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const services = category.services.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const slug = category.slug;
 
   return (
     <div className="relative min-h-screen">

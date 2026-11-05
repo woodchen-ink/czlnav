@@ -7,12 +7,8 @@ const API_CACHE = `czlnav-api-${APP_VERSION}`;
 
 const OWNED_CACHES = new Set([STATIC_CACHE, RUNTIME_CACHE, API_CACHE]);
 
-// 公开端只读 API, 走 stale-while-revalidate
-const SWR_API_PATTERNS = [
-  /^\/api\/settings\/?$/,
-  /^\/api\/public\/home\/?$/,
-  /^\/api\/public\/category\/[^/]+\/?$/,
-];
+// 构建期生成的公开数据 (搜索索引), 走 stale-while-revalidate
+const SWR_DATA_PATTERNS = [/^\/data\/[^/]+\.json$/];
 
 self.addEventListener("install", (event) => {
   // 跳过等待, 让新 SW 尽快接管
@@ -51,14 +47,14 @@ self.addEventListener("fetch", (event) => {
   // sw.js 自身: 不缓存, 让浏览器走原生 update 流程
   if (url.pathname === "/sw.js") return;
 
-  // Next 静态资源 (文件名带内容哈希, immutable): cache-first
-  if (url.pathname.startsWith("/_next/static/")) {
+  // Next 静态资源与构建期图标 (文件名带内容哈希, immutable): cache-first
+  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/")) {
     event.respondWith(cacheFirst(request, STATIC_CACHE));
     return;
   }
 
-  // 公开 API: stale-while-revalidate
-  if (SWR_API_PATTERNS.some((re) => re.test(url.pathname))) {
+  // 搜索索引: stale-while-revalidate
+  if (SWR_DATA_PATTERNS.some((re) => re.test(url.pathname))) {
     event.respondWith(staleWhileRevalidate(request, API_CACHE));
     return;
   }
@@ -75,9 +71,10 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // HTML navigation: 网络优先, 失败回退缓存 (保证 Go 占位符注入的实时性)
+  // HTML navigation: 预渲染静态页, stale-while-revalidate 让回访秒开.
+  // 每次发布 APP_VERSION 都变, 新 SW 激活时清掉旧缓存, 旧 HTML 与旧 chunk 同批失效, 不会错配.
   if (request.mode === "navigate") {
-    event.respondWith(networkFirst(request, RUNTIME_CACHE));
+    event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE));
     return;
   }
 });

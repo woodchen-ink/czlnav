@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import "@/app/liquid-glass.css";
 import { trackServiceClick } from "@/lib/analytics";
 
@@ -23,65 +23,18 @@ interface ServiceCardProps {
   service: Service;
 }
 
-// 创建一个图片缓存对象
-const imageCache: Record<string, boolean> = {};
-
 // 使用 React.memo 包装组件，避免不必要的重渲染
 const ServiceCard = React.memo(function ServiceCard({
   service,
 }: ServiceCardProps) {
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  // 图片加载处理
+  // 图标随预渲染 HTML 直接加载; 水合前就已失败的图片收不到 onError, 这里补查一次
   useEffect(() => {
-    let isSubscribed = true;
-
-    // 重置状态
-    setIsImageLoaded(false);
     setHasError(false);
-
-    // 如果没有图标，直接返回
-    if (!service.icon) return;
-
-    // 检查缓存
-    if (imageCache[service.icon]) {
-      setIsImageLoaded(true);
-      return;
-    }
-
-    // 预加载图片
-    const img = new window.Image();
-    img.src = service.icon;
-
-    const handleLoad = () => {
-      if (isSubscribed) {
-        imageCache[service.icon!] = true;
-        setIsImageLoaded(true);
-      }
-    };
-
-    const handleError = () => {
-      if (isSubscribed) {
-        setHasError(true);
-        setIsImageLoaded(true); // 即使出错也标记为已加载，以隐藏loading状态
-      }
-    };
-
-    // 如果图片已经加载完成（在缓存中）
-    if (img.complete) {
-      handleLoad();
-    } else {
-      img.addEventListener("load", handleLoad);
-      img.addEventListener("error", handleError);
-    }
-
-    // 清理函数
-    return () => {
-      isSubscribed = false;
-      img.removeEventListener("load", handleLoad);
-      img.removeEventListener("error", handleError);
-    };
+    const img = imgRef.current;
+    if (img?.complete && img.naturalWidth === 0) setHasError(true);
   }, [service.icon]);
 
   const onClick = useCallback(() => {
@@ -116,26 +69,19 @@ const ServiceCard = React.memo(function ServiceCard({
         <div className="menu-item p-3 flex items-center space-x-2 relative z-10">
           {/* 左侧图标 */}
           <div className="w-10 h-10 relative flex-shrink-0">
-            {/* 加载中显示loading样式 */}
-            {service.icon && !isImageLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center rounded-lg z-20">
-                <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin"></div>
-              </div>
-            )}
-
-            {/* 图标显示 */}
             {service.icon && !hasError ? (
-              <div
-                className={`absolute inset-0 transition-opacity duration-300 ${isImageLoaded ? "opacity-100" : "opacity-0"}`}
-              >
-                <Image
-                  src={service.icon}
-                  alt={service.name}
-                  fill
-                  className="rounded-lg object-contain"
-                  unoptimized={true}
-                />
-              </div>
+              <Image
+                ref={imgRef}
+                src={service.icon}
+                alt={service.name}
+                fill
+                sizes="40px"
+                className="rounded-lg object-contain"
+                unoptimized
+                // 图标是首屏主体且体积很小 (构建期已压缩), 不走默认的 lazy, 随 HTML 立即加载
+                loading="eager"
+                onError={() => setHasError(true)}
+              />
             ) : (
               renderInitial()
             )}
@@ -153,7 +99,7 @@ const ServiceCard = React.memo(function ServiceCard({
         </div>
       </a>
     ),
-    [service, isImageLoaded, hasError, onClick, renderInitial, finalUrl]
+    [service, hasError, onClick, renderInitial, finalUrl]
   );
 
   return cardContent;

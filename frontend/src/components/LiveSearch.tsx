@@ -39,6 +39,21 @@ const scrollbarStyles = `
   }
 `;
 
+const SEARCH_LIMIT = 8;
+
+// 搜索索引由 scripts/build-site-data.ts 生成, 随静态资源发布; 页面内只加载一次
+let searchIndexPromise: Promise<SearchResult[]> | null = null;
+function loadSearchIndex(): Promise<SearchResult[]> {
+  searchIndexPromise ??= fetch("/data/search.json").then(res => {
+    if (!res.ok) throw new Error(`search index ${res.status}`);
+    return res.json() as Promise<SearchResult[]>;
+  });
+  searchIndexPromise.catch(() => {
+    searchIndexPromise = null;
+  });
+  return searchIndexPromise;
+}
+
 export default function LiveSearch() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -49,47 +64,50 @@ export default function LiveSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  // 处理搜索框输入变化
+  // 处理搜索框输入变化: 首次输入时加载构建期生成的静态索引, 之后在本地过滤
   useEffect(() => {
-    const fetchResults = async () => {
-      if (!query.trim()) {
-        setResults([]);
-        setLoading(false);
-        setShowResults(false);
-        return;
-      }
+    const keyword = query.trim().toLowerCase();
+    if (!keyword) {
+      setResults([]);
+      setLoading(false);
+      setShowResults(false);
+      return;
+    }
 
+    let cancelled = false;
+    const run = async () => {
       try {
         setLoading(true);
-        const response = await fetch(
-          `/api/live-search?q=${encodeURIComponent(query.trim())}`
+        const index = await loadSearchIndex();
+        if (cancelled) return;
+        setResults(
+          index
+            .filter(
+              s =>
+                s.name.toLowerCase().includes(keyword) ||
+                s.description.toLowerCase().includes(keyword)
+            )
+            .slice(0, SEARCH_LIMIT)
         );
-        const data = await response.json();
-
-        if (data.success) {
-          setResults(data.data || []);
-          setShowResults(true);
-        } else {
-          setResults([]);
-          setShowResults(false);
-          if (process.env.NODE_ENV === "development") {
-            console.error("搜索失败:", data.message);
-          }
-        }
+        setShowResults(true);
       } catch (error) {
+        if (cancelled) return;
         setResults([]);
         setShowResults(false);
         if (process.env.NODE_ENV === "development") {
           console.error("搜索失败:", error);
         }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
-    // 使用防抖处理输入
-    const timeoutId = setTimeout(fetchResults, 300);
-    return () => clearTimeout(timeoutId);
+    // 本地过滤很快, 防抖只为避免输入法拼写过程中频繁刷新列表
+    const timeoutId = setTimeout(run, 120);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
   }, [query]);
 
   // 处理表单提交（按回车键）

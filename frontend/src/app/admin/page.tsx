@@ -38,7 +38,12 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">控制面板</h1>
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">控制面板</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          前台为预构建的静态页面，后台保存后会自动重新构建发布，约 2–3 分钟后在前台生效
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>

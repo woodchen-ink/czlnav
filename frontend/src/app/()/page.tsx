@@ -1,37 +1,14 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import CategorySection from "@/components/CategorySection";
-import { Category } from "@/types";
+import { getCategories } from "@/lib/site-data";
 import SmoothScrollScript from "@/components/SmoothScrollScript";
 import BackToTopButton from "@/components/BackToTopButton";
 import CategoryNavStyles from "@/components/CategoryNavStyles";
 import Image from "next/image";
 import "@/app/liquid-glass.css";
 
-interface PublicHomePayload {
-  categories: Category[];
-}
-
+// 构建期预渲染: 数据来自 scripts/build-site-data.ts, 运行时不再请求接口
 export default function HomePage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
-    const fetchHomeData = async () => {
-      try {
-        const response = await fetch("/api/public/home");
-        const data = await response.json();
-
-        if (data.success && data.data) {
-          setCategories(data.data.categories || []);
-        }
-      } catch (error) {
-        console.error("获取首页数据失败:", error);
-      }
-    };
-
-    fetchHomeData();
-  }, []);
+  const categories = getCategories();
 
   return (
     <div className="relative min-h-screen">
@@ -196,11 +173,7 @@ export default function HomePage() {
 
         <div className="space-y-10">
           {categories.map(category => (
-            <CategorySection
-              key={category.id}
-              category={category}
-              services={category.services || []}
-            />
+            <CategorySection key={category.id} category={category} />
           ))}
         </div>
       </div>

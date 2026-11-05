@@ -1,9 +1,15 @@
 import PublicSiteShell from "@/components/PublicSiteShell";
+import { getSettings } from "@/lib/site-data";
 
 export default function SiteLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <PublicSiteShell>{children}</PublicSiteShell>;
+  const { siteName, siteDescription, statisticsCode } = getSettings();
+  return (
+    <PublicSiteShell settings={{ siteName, siteDescription, statisticsCode }}>
+      {children}
+    </PublicSiteShell>
+  );
 }

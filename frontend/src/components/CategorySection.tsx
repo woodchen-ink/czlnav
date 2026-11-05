@@ -1,18 +1,13 @@
-"use client";
-
 import Link from "next/link";
 import ServiceCard from "./ServiceCard";
-import { Category, Service } from "@/types";
+import type { PublicCategory } from "@/lib/site-data";
 
 interface CategorySectionProps {
-  category: Category;
-  services: Service[];
+  category: PublicCategory;
 }
 
-export default function CategorySection({
-  category,
-  services,
-}: CategorySectionProps) {
+export default function CategorySection({ category }: CategorySectionProps) {
+  const services = category.services;
   if (services.length === 0) return null;
 
   return (

@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
+import { getSettings } from "@/lib/site-data";
+
+const settings = getSettings();
 
 export const metadata: Metadata = {
-  title: {
-    absolute: process.env.NEXT_PUBLIC_SITE_NAME || "CZL Nav",
-  },
-  description:
-    process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
-    "CZL Nav 是一个导航网站，收录优质 CZL 服务和应用",
+  title: { absolute: settings.seoTitle || settings.siteName },
+  description: settings.seoDescription || settings.siteDescription,
+  keywords: settings.seoKeywords || undefined,
 };
 
 export default function RootLayout({

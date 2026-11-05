@@ -1,4 +1,4 @@
-name: Build and Publish
+name: Verify
 
 on:
   push:
@@ -6,9 +6,6 @@ on:
     tags: ["v*"]
   pull_request:
     branches: [main]
-
-env:
-  IMAGE_NAME: woodchen/czlnav
 
 jobs:
   verify:
@@ -31,6 +28,9 @@ jobs:
       - name: Typecheck EdgeOne functions
         run: npm run typecheck
 
+      - name: Fetch site data for prerender
+        run: node scripts/build-site-data.ts --from-api https://nav.czl.net
+
       - name: Install frontend dependencies
         run: npm ci --no-audit --no-fund
         working-directory: frontend
@@ -48,72 +48,3 @@ jobs:
         run: go build ./...
         working-directory: go-backend
 
-  docker:
-    runs-on: ubuntu-latest
-    needs: verify
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: woodchen
-          password: ${{ secrets.ACCESS_TOKEN }}
-
-      - name: Generate metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,prefix=main-
-            type=ref,event=tag
-            type=raw,value=latest
-
-      - name: Resolve app version
-        id: version
-        run: |
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            echo "value=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
-          else
-            echo "value=main-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64
-          build-args: |
-            APP_VERSION=${{ steps.version.outputs.value }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      # 触发 Dokploy 自动部署; 完整 URL 走 secret 防止公网暴露后被任意触发
-      # 未配置 secret 时 step 内自跳过, 不让仓库 fork / 初次跑的人挂红
-      - name: Trigger Dokploy deploy webhook
-        env:
-          DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
-        run: |
-          if [ -z "${DEPLOY_WEBHOOK_URL}" ]; then
-            echo "DEPLOY_WEBHOOK_URL not set, skipping."
-            exit 0
-          fi
-          curl --fail --silent --show-error --retry 3 --retry-delay 5 \
-            -X POST "${DEPLOY_WEBHOOK_URL}"

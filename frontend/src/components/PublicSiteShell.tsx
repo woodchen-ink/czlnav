@@ -1,51 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-
-interface PublicSettings {
-  siteName: string;
-  siteDescription: string;
-  statisticsCode: string;
-}
+import type { PublicSettings } from "@/lib/site-data";
 
 interface PublicSiteShellProps {
+  settings: Pick<PublicSettings, "siteName" | "siteDescription" | "statisticsCode">;
   children: React.ReactNode;
 }
 
-const defaultSettings: PublicSettings = {
-  siteName: "CZL Nav",
-  siteDescription: "CZL Nav 是一个导航网站，收录优质 CZL 服务和应用",
-  statisticsCode: "",
-};
-
-export default function PublicSiteShell({ children }: PublicSiteShellProps) {
-  const [settings, setSettings] = useState(defaultSettings);
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await fetch("/api/settings");
-        const data = await response.json();
-
-        if (data.success && data.data) {
-          setSettings({
-            siteName: data.data.siteName || defaultSettings.siteName,
-            siteDescription:
-              data.data.siteDescription || defaultSettings.siteDescription,
-            statisticsCode:
-              data.data.statisticsCode || defaultSettings.statisticsCode,
-          });
-        }
-      } catch (error) {
-        console.error("获取网站设置失败:", error);
-      }
-    };
-
-    fetchSettings();
-  }, []);
-
+// 站点设置由服务端布局在构建期传入, 不再运行时请求 /api/settings
+export default function PublicSiteShell({ settings, children }: PublicSiteShellProps) {
   // 注册 Service Worker (仅生产环境 + 浏览器支持时)
   useEffect(() => {
     if (typeof window === "undefined") return;

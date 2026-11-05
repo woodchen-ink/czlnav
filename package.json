@@ -6,13 +6,17 @@
     "build": "npm --prefix frontend ci && npm --prefix frontend run build && node scripts/stamp-sw-version.mjs",
     "dev": "edgeone makers dev -n czlnav",
     "typecheck": "tsc -p tsconfig.json",
-    "migrate": "node scripts/migrate-to-blob.ts"
+    "migrate": "node scripts/migrate-to-blob.ts",
+    "data": "node scripts/build-site-data.ts",
+    "data:api": "node scripts/build-site-data.ts --from-api https://nav.czl.net"
   },
   "dependencies": {
     "@edgeone/pages-blob": "0.0.18"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",
+    "decode-ico": "^0.4.1",
+    "sharp": "^0.35.5",
     "typescript": "^5.9.3"
   }
 }
