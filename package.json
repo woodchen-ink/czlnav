@@ -1,0 +1,18 @@
+{
+  "name": "czlnav",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm --prefix frontend ci && npm --prefix frontend run build && node scripts/stamp-sw-version.mjs",
+    "dev": "edgeone makers dev -n czlnav",
+    "typecheck": "tsc -p tsconfig.json",
+    "migrate": "node scripts/migrate-to-blob.ts"
+  },
+  "dependencies": {
+    "@edgeone/pages-blob": "0.0.18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.3"
+  }
+}

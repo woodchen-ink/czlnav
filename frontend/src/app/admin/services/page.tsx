@@ -67,7 +67,6 @@ interface Service {
   url: string;
   description: string;
   icon: string | null;
-  clickCount: number;
   categoryId: number;
   sortOrder: number;
   categoryName?: string;
@@ -541,7 +540,6 @@ const SortableRow: React.FC<SortableRowProps> = ({
       </TableCell>
       <TableCell className="font-medium">{service.name}</TableCell>
       <TableCell>{service.categoryName}</TableCell>
-      <TableCell>{service.clickCount}</TableCell>
       <TableCell>{new Date(service.createdAt).toLocaleString()}</TableCell>
       <TableCell>
         <div className="flex gap-1">
@@ -951,7 +949,6 @@ export default function ServicesPage() {
                 <TableHead className="w-16">图标</TableHead>
                 <TableHead>名称</TableHead>
                 <TableHead className="w-32">分类</TableHead>
-                <TableHead className="w-24">点击量</TableHead>
                 <TableHead className="w-44">创建时间</TableHead>
                 <TableHead className="w-32">操作</TableHead>
               </TableRow>

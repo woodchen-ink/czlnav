@@ -19,9 +19,9 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <Script
-        async
-        src="https://l.czl.net/script.js"
-        data-website-id="5703b793-bb32-42df-9bd5-37a43c78f399"
+        defer
+        src="https://connect.czl.net/u6pbhv.js"
+        data-id="6e2te6mzmi4u"
       />
       <body>{children}</body>
     </html>

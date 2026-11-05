@@ -21,7 +21,6 @@ export interface Service {
   url: string;
   description: string;
   icon: string | null;
-  clickCount: number;
   categoryId: number;
   sortOrder: number;
   category?: {

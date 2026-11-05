@@ -1,38 +1,43 @@
 # CLAUDE.md
 
-Repository layout:
+部署目标为 EdgeOne Makers: 静态导出的 Next.js 前端 + Node.js (TS) Cloud Functions + Blob 存储. 平台没有数据库, Blob 是唯一数据源.
 
-- [frontend/](/c:/Users/wood/codespace/czlnav/frontend) contains the original Next.js UI
-- [go-backend/](/c:/Users/wood/codespace/czlnav/go-backend) contains the active Go runtime
+仓库结构:
 
-Important notes:
+- [frontend/](frontend): Next.js 16 静态导出 (`output: 'export'`), 产物 `frontend/out`; 页面构建期不读数据, 全部运行时调 `/api`
+- [cloud-functions/](cloud-functions): 平台函数入口, 只做转发. `api/[[default]].ts` 承接全部 `/api/*`, `uploads/[[default]].ts` 从 Blob 读上传文件
+- [server/](server): 后端实现 (路由 / handler / Blob 读写 / 鉴权), 被 `cloud-functions/` 引用; 不放进 `cloud-functions/` 是为了不被平台当成路由
+- [scripts/](scripts): `stamp-sw-version.mjs` 构建后注入 SW 版本号; `migrate-to-blob.ts` 一次性把旧 SQLite + 上传目录迁入 Blob
+- [edgeone.json](edgeone.json): 构建命令、输出目录、`/c/:slug` 重写、缓存头 (Next.js 的 rewrites/headers 在静态导出下不生效, 一律写这里)
+- [go-backend/](go-backend): 旧 Go + SQLite 运行时, 仅作切换期回滚与迁移数据来源, 不再新增功能; EdgeOne 稳定后连同 Dockerfile / Dokploy webhook 一起删除
 
-- Frontend build must be run from `frontend/`
-- Go build must be run from `go-backend/`
-- Frontend pages no longer read the database during build
-- Go is the only place that talks to SQLite
+后端约定:
 
-静态资源缓存契约:
+- TS 只用可擦除语法 (`erasableSyntaxOnly`), 不写 enum / 参数属性 / namespace, 保证 Node 原生 type stripping 可直接跑
+- 响应契约沿用旧版: `{ success, message, data }`, 错误文案为中文, 前端直接展示 `message`
+- Blob store `czlnav`, 一律 `consistency: "strong"`; 每张表一个 JSON 文档 `db/categories.json` / `db/services.json` (`{ seq, items }`, `seq` 只增不减, 删除后 ID 不复用) / `db/settings.json`; 只有管理员写, 不做并发控制
+- 上传文件存 Blob `uploads/<rel>`, 对外路径 `/uploads/<rel>`; `frontend/public/uploads` 里的历史图标作为静态资源发布, 优先于函数命中
+- 点击数不再由后端记录: 前端 `trackServiceClick` (`frontend/src/lib/analytics.ts`) 上报 CZL Connect 统计事件 `service_click`, 数据只在统计面板查看
 
-- `/_next/static/*`: `public, max-age=31536000, immutable` (Next.js 内容哈希命名, 永久缓存)
-- `/static/*`, `/favicon.ico`, `/logo.*`: `public, max-age=86400`
+后台登录 (CZL Connect OAuth2):
+
+- 环境变量在 Makers 控制台配置: `CZL_CONNECT_CLIENT_ID`、`CZL_CONNECT_CLIENT_SECRET`、`AUTH_CALLBACK_URL` (生产必填, 与 CZL Connect 登记的回调地址完全一致; 函数内 `request.url` 不一定是公网域名, 不能靠它推导)、`ADMIN_USERS` (可选, 逗号分隔的用户 id 或 username, 不填则任何 CZL Connect 账号都是管理员)
+- Cookie: `access_token` / `refresh_token` 沿用旧版; `admin_session` 为 HMAC 签名的 10 分钟用户缓存 (替代旧版进程内存缓存), 绑定 access_token 摘要, 过期后用 access_token 重新拉用户信息续签
+- `Secure` 标志以 `AUTH_CALLBACK_URL` 的协议为准
+- `/admin/*` 页面本身是静态壳, 由 `app/admin/layout.tsx` 调 `/api/admin/account` 判断登录态; 数据安全靠 `/api/admin/*` 的服务端校验
+
+缓存契约:
+
+- `/_next/static/*`: `public, max-age=31536000, immutable`
 - `/uploads/*`: `public, max-age=3600`
-- HTML (`/`, `/c/{slug}`, `/admin/*`): `no-cache, no-store, must-revalidate` (Go 运行时占位符注入要每次拿最新数据)
-- `/api/*`: `chiMiddleware.NoCache` 子路由全程禁缓存
-- `/sw.js`: 永不缓存; 内容里的 `__APP_VERSION__` 占位符在 Go [handler/pages.go](go-backend/handler/pages.go) `ServeServiceWorker` 中替换为 `config.Version`
+- HTML 与 `/sw.js`: `no-cache, no-store, must-revalidate`
+- `/api/*`: 全部 `no-cache, no-store, must-revalidate` (`server/http.ts`)
 
-Service Worker (`frontend/public/sw.js`) 策略:
+Service Worker (`frontend/public/sw.js`):
 
 - 仅公开端注册 (`PublicSiteShell` 内 `useEffect`); admin 区与 `/api/admin/*` SW 不接管
 - `/_next/static/*` cache-first; `/api/settings`、`/api/public/home`、`/api/public/category/{slug}` stale-while-revalidate; HTML navigation 与 `/uploads`、`/static` 网络优先回退缓存
-- 版本号变化 ⇒ `sw.js` 字节变化 ⇒ install 新 SW ⇒ activate 清旧 cache; 前端不做"检查新版本 + 弹刷新提示", 用户下次刷新自动拿到新静态资源
-
-版本号注入链路:
-
-- 入口: GitHub Actions [.github/workflows/build.yml](.github/workflows/build.yml) tag 触发时把 `github.ref_name` (`vX.Y.Z`) 写入 `APP_VERSION` build-arg, 非 tag 用 `main-<sha7>`
-- 传递: Dockerfile `ARG APP_VERSION` → `go build -ldflags "-X czlnav/config.Version=${APP_VERSION}"`
-- 落地: `czlnav/config.Version` 包级变量 → `handler.ServeServiceWorker` 替换 `sw.js` 中 `__APP_VERSION__`
-- 本地开发: 不带 ldflags 时 Version 为 `dev`, SW 仍可注册, 但版本不切换 (生产构建才切)
+- 版本号: 构建后 `scripts/stamp-sw-version.mjs` 把 `sw.js` 中的占位符替换为 `APP_VERSION` 环境变量, 未设置时用构建时间戳 (每次部署都会切换 SW)
 
 设计规范 (CZL frontend-design):
 
@@ -43,14 +48,15 @@ Service Worker (`frontend/public/sw.js`) 策略:
 - 公开端滚动用浏览器原生行为, 不做鼠标滚轮 rAF 缓动 (锚点跳转的 `scroll-behavior: smooth` 由 `SmoothScrollScript` 处理, 与整页滚动无关)
 - 后台 (`/admin/*`) 按 CZL 规范走 "灰底浮卡 + 中性深色识别" 风格, 选中态用 accent 浅灰 + 加粗
 
-Primary commands:
+常用命令 (仓库根目录):
 
 ```powershell
-cd frontend
-npm install
-npm run build
+npm install            # 函数依赖
+npm run typecheck      # 后端类型检查
+npm run build          # 前端构建 + SW 版本注入 (平台构建同此命令)
+npm run dev            # edgeone makers dev, 需先 edgeone login; 前端热更新另开 `cd frontend; npm run dev`, /api 反代到 8088
 
-cd ../go-backend
-go build ./...
-go run .
+# 迁移: 先 dry-run 核对, 再带凭据正式写入
+node scripts/migrate-to-blob.ts --db <database.db> --uploads <uploads 目录> --dry-run
+$env:EDGEONE_PROJECT_ID="..."; $env:EDGEONE_BLOB_TOKEN="..."; node scripts/migrate-to-blob.ts --db <database.db> --uploads <uploads 目录>
 ```

@@ -15,7 +15,6 @@ export interface SearchResult {
   categoryId: number;
   categoryName: string;
   categorySlug: string;
-  clickCount: number;
 }
 
 // 登录请求类型

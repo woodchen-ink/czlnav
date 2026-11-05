@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, FormEvent, KeyboardEvent } from "react";
 import Image from "next/image";
 import { SearchIcon } from "./icons/SearchIcon";
 import { SearchResult } from "@/types/api";
+import { trackServiceClick } from "@/lib/analytics";
 
 // 添加自定义滚动条样式
 const scrollbarStyles = `
@@ -160,15 +161,8 @@ export default function LiveSearch() {
   };
 
   // 处理结果点击
-  const handleResultClick = async (result: SearchResult) => {
-    try {
-      // 记录点击
-      await fetch(`/api/services/${result.id}/click`, { method: "POST" });
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.error("记录点击失败:", error);
-      }
-    }
+  const handleResultClick = (result: SearchResult) => {
+    trackServiceClick(result, "search");
 
     // 跳转到网站
     window.open(result.url, "_blank", "noopener,noreferrer");

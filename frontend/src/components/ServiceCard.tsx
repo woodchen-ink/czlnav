@@ -3,6 +3,7 @@
 import Image from "next/image";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import "@/app/liquid-glass.css";
+import { trackServiceClick } from "@/lib/analytics";
 
 // 定义Service类型
 type Service = {
@@ -84,14 +85,9 @@ const ServiceCard = React.memo(function ServiceCard({
   }, [service.icon]);
 
   const onClick = useCallback(() => {
-    // 先记录点击（异步，不阻塞导航）
-    fetch(`/api/services/${service.id}/click`, {
-      method: "POST",
-    }).catch(() => {
-      // 静默失败
-    });
-    // 不阻止默认行为，让浏览器自然打开链接
-  }, [service.id]);
+    // 只上报统计, 不阻止默认行为, 让浏览器自然打开链接
+    trackServiceClick(service, "card");
+  }, [service]);
 
   // 直接使用原始URL,不添加ref参数
   const finalUrl = service.url;

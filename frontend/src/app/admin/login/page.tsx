@@ -20,6 +20,7 @@ export default function LoginPage() {
           setError("OAuth认证发生错误，请重试");
           break;
         case "oauth_denied":
+        case "oauth_access_denied":
           setError("您取消了授权，请重新尝试登录");
           break;
         case "no_code":
@@ -36,6 +37,12 @@ export default function LoginPage() {
           break;
         case "callback_error":
           setError("授权回调处理失败，请重试");
+          break;
+        case "not_admin":
+          setError("该账号没有后台权限");
+          break;
+        case "missing_oauth_config":
+          setError("服务端未配置 CZL Connect 登录参数");
           break;
         default:
           setError("登录过程中发生未知错误");

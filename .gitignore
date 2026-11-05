@@ -47,3 +47,8 @@ next-env.d.ts
 .claude/settings.local.json
 go-backend/data/database.db
 database.db
+
+# EdgeOne Makers
+node_modules/
+.edgeone/
+.migrate-out/

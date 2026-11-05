@@ -1,4 +1,4 @@
-// __APP_VERSION__ 在 Go ServeServiceWorker 中被替换为构建期注入的版本号.
+// 下方 APP_VERSION 占位符在构建后由 scripts/stamp-sw-version.mjs 替换为版本号.
 // 版本变 ⇒ sw.js 字节变 ⇒ install 走新流程; activate 清旧 cache.
 const APP_VERSION = "__APP_VERSION__";
 const STATIC_CACHE = `czlnav-static-${APP_VERSION}`;

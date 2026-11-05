@@ -21,13 +21,17 @@ const config = {
     ],
     unoptimized: true,
   },
-  // 开发模式下将 /api/* 反代到本地 Go 后端 (3000)
+  // 开发模式下将 /api/*、/uploads/* 反代到 `edgeone makers dev` (8088); 生产为静态导出, 此配置不生效
   async rewrites() {
     if (!isDev) return [];
     return [
       {
         source: "/api/:path*",
-        destination: "http://127.0.0.1:3000/api/:path*",
+        destination: "http://127.0.0.1:8088/api/:path*",
+      },
+      {
+        source: "/uploads/:path*",
+        destination: "http://127.0.0.1:8088/uploads/:path*",
       },
     ];
   },
