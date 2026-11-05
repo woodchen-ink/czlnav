@@ -52,6 +52,22 @@ interface RawData {
 
 const { values: args } = parseArgs({ options: { "from-api": { type: "string" } } });
 
+// Blob 的 STS 凭据接口偶发返回 "credential exchange failed (code=-1): Invalid credential",
+// 同一令牌重试即可成功; SDK 只对网络错误 / 5xx 重试, 这里补一层. 凭据只在成功后缓存, 重试会重新交换.
+const BLOB_ATTEMPTS = 4;
+
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (attempt >= BLOB_ATTEMPTS) throw err;
+      console.warn(`blob read failed (attempt ${attempt}/${BLOB_ATTEMPTS}), retrying: ${(err as Error).message}`);
+      await new Promise((r) => setTimeout(r, attempt * 3000));
+    }
+  }
+}
+
 async function fromBlob(): Promise<RawData> {
   const projectId = process.env.EDGEONE_PROJECT_ID;
   const token = process.env.EDGEONE_API_TOKEN;
@@ -59,11 +75,13 @@ async function fromBlob(): Promise<RawData> {
     throw new Error("missing EDGEONE_PROJECT_ID / EDGEONE_API_TOKEN (or pass --from-api <origin>)");
   }
   const store = getStore({ name: "czlnav", projectId, token, consistency: "strong" });
-  const [categories, services, settings] = await Promise.all([
-    store.get("db/categories.json", { type: "json" }) as Promise<Table<Category> | null>,
-    store.get("db/services.json", { type: "json" }) as Promise<Table<Service> | null>,
-    store.get("db/settings.json", { type: "json" }) as Promise<Settings | null>,
-  ]);
+  const [categories, services, settings] = await withRetry(() =>
+    Promise.all([
+      store.get("db/categories.json", { type: "json" }) as Promise<Table<Category> | null>,
+      store.get("db/services.json", { type: "json" }) as Promise<Table<Service> | null>,
+      store.get("db/settings.json", { type: "json" }) as Promise<Settings | null>,
+    ])
+  );
   if (!categories || !services) throw new Error("blob data missing: db/categories.json or db/services.json");
   return {
     categories: categories.items,
