@@ -3,7 +3,12 @@ import { readCookie, serializeCookie } from "../cookie";
 import type { Env } from "../env";
 import { fetchUser, type CZLUser, type OAuthConfig } from "./oauth";
 
-export type AdminUser = CZLUser;
+// 会话里只存后台用得到的字段, 让 cookie 尽量小 (浏览器单个 cookie 上限约 4KB)
+export type AdminUser = Pick<CZLUser, "id" | "username">;
+
+function toAdminUser(user: CZLUser): AdminUser {
+  return { id: user.id, username: user.username };
+}
 
 export const SESSION_COOKIE = "admin_session";
 export const STATE_COOKIE = "oauth_state";
@@ -59,7 +64,7 @@ export async function requireAdmin(
   }
 
   try {
-    const user = await fetchUser(session.token);
+    const user = toAdminUser(await fetchUser(session.token));
     if (!isAllowedAdmin(user, env)) return { user: null };
     const renewed: SessionPayload = { ...session, user, checkedAt: now };
     return { user, setCookie: serializeSession(renewed, secret, isSecure(request, env)) };
@@ -70,15 +75,29 @@ export async function requireAdmin(
 }
 
 export function issueSession(
-  user: AdminUser,
+  user: CZLUser,
   accessToken: string,
-  expiresIn: number,
+  expiresIn: unknown,
   secret: string,
   secure: boolean
 ): string {
   const now = nowSeconds();
-  const ttl = expiresIn > 0 ? expiresIn : DEFAULT_TOKEN_TTL_SECONDS;
-  return serializeSession({ user, token: accessToken, checkedAt: now, exp: now + ttl }, secret, secure);
+  const seconds = Number(expiresIn);
+  const ttl = Number.isFinite(seconds) && seconds > 0 ? Math.floor(seconds) : DEFAULT_TOKEN_TTL_SECONDS;
+  return serializeSession(
+    { user: toAdminUser(user), token: accessToken, checkedAt: now, exp: now + ttl },
+    secret,
+    secure
+  );
+}
+
+// 临时排障用: 只描述会话 cookie 的状态, 不返回任何值
+export function describeSession(request: Request, env: Env): string {
+  const secret = env.CZL_CONNECT_CLIENT_SECRET;
+  if (!secret) return "no_secret";
+  const raw = readCookie(request, SESSION_COOKIE);
+  if (!raw) return "missing";
+  return verifySession(raw, secret) ? "ok" : "invalid_or_expired";
 }
 
 function serializeSession(payload: SessionPayload, secret: string, secure: boolean): string {

@@ -22,6 +22,7 @@ api.get("/api/live-search", pub.liveSearch);
 api.get("/api/auth/login", auth.login);
 api.get("/api/auth/callback", auth.callback);
 api.post("/api/auth/logout", auth.logout);
+api.get("/api/auth/debug", auth.debugSession);
 
 api.admin.get("/api/admin/account", auth.account);
 api.admin.put("/api/admin/account/password", auth.changePassword);

@@ -6,6 +6,7 @@ import {
   SESSION_COOKIE,
   STATE_COOKIE,
   isAllowedAdmin,
+  describeSession,
   isSecure,
   issueSession,
   oauthConfig,
@@ -64,7 +65,9 @@ export const callback: Handler = async ({ request, url, env }) => {
     return failTo("not_admin");
   }
 
-  return redirect("/admin", [issueSession(user, token.access_token, token.expires_in, cfg.clientSecret, secure)]);
+  const sessionCookie = issueSession(user, token.access_token, token.expires_in, cfg.clientSecret, secure);
+  console.log("login ok", user.id, "session cookie length", sessionCookie.length);
+  return redirect("/admin", [sessionCookie]);
 };
 
 export const logout: Handler = ({ request, env }) => {
@@ -76,3 +79,16 @@ export const account: Handler = ({ user }) => ok(user);
 
 export const changePassword: Handler = () =>
   fail(400, "密码修改功能已迁移到 CZL Connect 平台，请前往 https://connect.czl.net 修改您的密码");
+
+// 临时排障: 浏览器带上来的 cookie 名与长度 + 会话校验结果, 不含任何 cookie 值. 登录问题解决后删除.
+export const debugSession: Handler = ({ request, env }) => {
+  const cookies = (request.headers.get("Cookie") ?? "")
+    .split(";")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      const idx = part.indexOf("=");
+      return { name: idx === -1 ? part : part.slice(0, idx), length: idx === -1 ? 0 : part.length - idx - 1 };
+    });
+  return ok({ cookies, session: describeSession(request, env) });
+};
