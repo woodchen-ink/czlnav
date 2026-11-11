@@ -29,7 +29,8 @@ export default function AdminLayout({
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [siteName, setSiteName] = useState("导航");
   const router = useRouter();
-  const pathname = usePathname();
+  // trailingSlash: true 下客户端 pathname 可能带末尾斜杠 (预渲染时不带), 不归一会导致登录页判定前后不一致 (hydration #418)
+  const pathname = usePathname().replace(/(.)\/+$/, "$1");
   const isLoginPage = pathname === "/admin/login";
 
   // 处理客户端渲染

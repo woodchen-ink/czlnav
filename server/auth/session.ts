@@ -91,14 +91,6 @@ export function issueSession(
   );
 }
 
-// 临时排障用: 只描述会话 cookie 的状态, 不返回任何值
-export function describeSession(request: Request, env: Env): string {
-  const secret = env.CZL_CONNECT_CLIENT_SECRET;
-  if (!secret) return "no_secret";
-  const raw = readCookie(request, SESSION_COOKIE);
-  if (!raw) return "missing";
-  return verifySession(raw, secret) ? "ok" : "invalid_or_expired";
-}
 
 function serializeSession(payload: SessionPayload, secret: string, secure: boolean): string {
   const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
