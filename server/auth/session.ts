@@ -5,18 +5,20 @@ import { fetchUser, type CZLUser, type OAuthConfig } from "./oauth";
 
 export type AdminUser = CZLUser;
 
-export const ACCESS_TOKEN_COOKIE = "access_token";
-export const REFRESH_TOKEN_COOKIE = "refresh_token";
 export const SESSION_COOKIE = "admin_session";
 export const STATE_COOKIE = "oauth_state";
 
-// 旧版在进程内存缓存 access_token→用户 10 分钟; Serverless 实例随时冷启动, 改为签名 cookie 承载同样的 10 分钟缓存.
-const SESSION_TTL_SECONDS = 10 * 60;
+// EdgeOne Makers 函数网关只保留响应里最后一个 Set-Cookie, 所以会话只用一个 cookie 承载:
+// access_token + 用户信息缓存, 整体 HMAC 签名. 用户信息每 10 分钟用 access_token 重新拉取一次 (白名单 / 账号状态变更及时生效).
+const USER_RECHECK_SECONDS = 10 * 60;
+// CZL Connect 未返回有效期时的兜底
+const DEFAULT_TOKEN_TTL_SECONDS = 2 * 60 * 60;
 
 interface SessionPayload {
   user: AdminUser;
-  token: string; // access_token 的签名摘要, 换 token 后旧会话自动失效
-  exp: number;
+  token: string; // CZL Connect access_token
+  checkedAt: number; // 上次拉取用户信息的时间 (秒)
+  exp: number; // access_token 过期时间 (秒), 也是 cookie 的过期时间
 }
 
 export function oauthConfig(env: Env, request: Request): OAuthConfig | null {
@@ -44,35 +46,45 @@ export async function requireAdmin(
   request: Request,
   env: Env
 ): Promise<{ user: AdminUser | null; setCookie?: string }> {
-  const accessToken = readCookie(request, ACCESS_TOKEN_COOKIE);
   const secret = env.CZL_CONNECT_CLIENT_SECRET;
-  if (!accessToken || !secret) return { user: null };
+  if (!secret) return { user: null };
 
   const session = verifySession(readCookie(request, SESSION_COOKIE), secret);
-  if (session && session.token === digest(secret, accessToken)) {
+  if (!session) return { user: null };
+
+  const now = nowSeconds();
+  if (now - session.checkedAt < USER_RECHECK_SECONDS) {
     // 白名单改动后已签发的会话也要立即生效
     return isAllowedAdmin(session.user, env) ? { user: session.user } : { user: null };
   }
 
   try {
-    const user = await fetchUser(accessToken);
+    const user = await fetchUser(session.token);
     if (!isAllowedAdmin(user, env)) return { user: null };
-    return { user, setCookie: issueSession(user, accessToken, secret, isSecure(request, env)) };
+    const renewed: SessionPayload = { ...session, user, checkedAt: now };
+    return { user, setCookie: serializeSession(renewed, secret, isSecure(request, env)) };
   } catch (err) {
     console.error("auth verification failed", err);
     return { user: null };
   }
 }
 
-export function issueSession(user: AdminUser, accessToken: string, secret: string, secure: boolean): string {
-  const payload: SessionPayload = {
-    user,
-    token: digest(secret, accessToken),
-    exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
-  };
+export function issueSession(
+  user: AdminUser,
+  accessToken: string,
+  expiresIn: number,
+  secret: string,
+  secure: boolean
+): string {
+  const now = nowSeconds();
+  const ttl = expiresIn > 0 ? expiresIn : DEFAULT_TOKEN_TTL_SECONDS;
+  return serializeSession({ user, token: accessToken, checkedAt: now, exp: now + ttl }, secret, secure);
+}
+
+function serializeSession(payload: SessionPayload, secret: string, secure: boolean): string {
   const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
   return serializeCookie(SESSION_COOKIE, `${body}.${sign(secret, body)}`, {
-    maxAge: SESSION_TTL_SECONDS,
+    maxAge: Math.max(payload.exp - nowSeconds(), 0),
     secure,
   });
 }
@@ -88,7 +100,7 @@ function verifySession(raw: string | null, secret: string): SessionPayload | nul
 
   try {
     const payload = JSON.parse(Buffer.from(body, "base64url").toString()) as SessionPayload;
-    return payload.exp > Date.now() / 1000 ? payload : null;
+    return typeof payload.token === "string" && payload.exp > nowSeconds() ? payload : null;
   } catch {
     return null;
   }
@@ -98,6 +110,6 @@ function sign(secret: string, value: string): string {
   return createHmac("sha256", `czlnav-session:${secret}`).update(value).digest("base64url");
 }
 
-function digest(secret: string, token: string): string {
-  return sign(secret, `token:${token}`).slice(0, 22);
+function nowSeconds(): number {
+  return Math.floor(Date.now() / 1000);
 }

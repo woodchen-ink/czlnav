@@ -3,8 +3,6 @@ import { clearCookie, readCookie, serializeCookie } from "../cookie";
 import { ok, redirect, fail } from "../http";
 import { authorizeUrl, exchangeCode, fetchUser } from "../auth/oauth";
 import {
-  ACCESS_TOKEN_COOKIE,
-  REFRESH_TOKEN_COOKIE,
   SESSION_COOKIE,
   STATE_COOKIE,
   isAllowedAdmin,
@@ -16,7 +14,6 @@ import type { Handler } from "../router";
 
 const LOGIN_PAGE = "/admin/login";
 const STATE_MAX_AGE = 600;
-const REFRESH_TOKEN_MAX_AGE = 30 * 24 * 60 * 60;
 
 export const login: Handler = ({ request, env }) => {
   const cfg = oauthConfig(env, request);
@@ -33,9 +30,9 @@ export const callback: Handler = async ({ request, url, env }) => {
   if (!cfg) return redirect(`${LOGIN_PAGE}?error=missing_oauth_config`);
 
   const secure = isSecure(request, env);
-  // state 一次性使用, 无论成败都清掉
-  const clearState = clearCookie(STATE_COOKIE, secure);
-  const failTo = (code: string) => redirect(`${LOGIN_PAGE}?error=${code}`, [clearState]);
+  // 平台只保留最后一个 Set-Cookie (见 auth/session.ts), 成功时要写会话 cookie, oauth_state 交给 Max-Age 自然过期;
+  // code 本身一次性, state 重放无害.
+  const failTo = (code: string) => redirect(`${LOGIN_PAGE}?error=${code}`, [clearCookie(STATE_COOKIE, secure)]);
 
   const errParam = url.searchParams.get("error");
   if (errParam) return failTo(`oauth_${encodeURIComponent(errParam)}`);
@@ -67,21 +64,12 @@ export const callback: Handler = async ({ request, url, env }) => {
     return failTo("not_admin");
   }
 
-  return redirect("/admin", [
-    clearState,
-    serializeCookie(ACCESS_TOKEN_COOKIE, token.access_token, { maxAge: token.expires_in, secure }),
-    serializeCookie(REFRESH_TOKEN_COOKIE, token.refresh_token, { maxAge: REFRESH_TOKEN_MAX_AGE, secure }),
-    issueSession(user, token.access_token, cfg.clientSecret, secure),
-  ]);
+  return redirect("/admin", [issueSession(user, token.access_token, token.expires_in, cfg.clientSecret, secure)]);
 };
 
 export const logout: Handler = ({ request, env }) => {
   const secure = isSecure(request, env);
-  const res = ok(null, "登出成功");
-  for (const name of [ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, SESSION_COOKIE]) {
-    res.headers.append("Set-Cookie", clearCookie(name, secure));
-  }
-  return res;
+  return ok(null, "登出成功", { headers: { "Set-Cookie": clearCookie(SESSION_COOKIE, secure) } });
 };
 
 export const account: Handler = ({ user }) => ok(user);

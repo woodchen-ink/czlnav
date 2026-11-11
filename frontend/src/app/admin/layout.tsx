@@ -100,15 +100,9 @@ export default function AdminLayout({
     };
   }, [isClient, isLoginPage]);
 
-  // 处理登录页面
+  // 登录页不套后台框架; <html>/<body> 由根 layout 提供, 这里再套一层会导致 hydration 报错 (#418)
   if (isLoginPage) {
-    return (
-      <AdminAppProvider>
-        <html lang="zh-CN">
-          <body>{children}</body>
-        </html>
-      </AdminAppProvider>
-    );
+    return <AdminAppProvider>{children}</AdminAppProvider>;
   }
 
   // 退出登录

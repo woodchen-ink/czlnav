@@ -25,7 +25,8 @@
 后台登录 (CZL Connect OAuth2):
 
 - 环境变量在 Makers 控制台配置: `CZL_CONNECT_CLIENT_ID`、`CZL_CONNECT_CLIENT_SECRET`、`AUTH_CALLBACK_URL` (生产必填, 与 CZL Connect 登记的回调地址完全一致; 函数内 `request.url` 不一定是公网域名, 不能靠它推导)、`ADMIN_USERS` (可选, 逗号分隔的用户 id 或 username, 不填则任何 CZL Connect 账号都是管理员)
-- Cookie: `access_token` / `refresh_token` 沿用旧版; `admin_session` 为 HMAC 签名的 10 分钟用户缓存 (替代旧版进程内存缓存), 绑定 access_token 摘要, 过期后用 access_token 重新拉用户信息续签
+- EdgeOne 函数网关只保留响应里最后一个 `Set-Cookie`, 任何响应只能写一个 cookie
+- 会话只用一个 HMAC 签名 cookie `admin_session`: 内含 CZL Connect access_token 与用户信息, 有效期随 access_token; 用户信息每 10 分钟用 access_token 重新拉取并续签. 不再写 `access_token` / `refresh_token` cookie; `oauth_state` 成功登录后靠 Max-Age 自然过期
 - `Secure` 标志以 `AUTH_CALLBACK_URL` 的协议为准
 - `CNB_TRIGGER_TOKEN` (只需 `repo-cnb-trigger:rw`) 用于后台保存后触发发布, `CNB_REPO` 默认 `czl/czlnav`; 未配置时只保存不发布
 - `/admin/*` 页面本身是静态壳, 由 `app/admin/layout.tsx` 调 `/api/admin/account` 判断登录态; 数据安全靠 `/api/admin/*` 的服务端校验
