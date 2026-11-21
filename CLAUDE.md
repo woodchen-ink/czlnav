@@ -53,6 +53,7 @@ Service Worker (`frontend/public/sw.js`):
 - 公开端 (首页 + `c/[slug]` 分类页) 沿用 liquid-glass 玻璃风格配深背景图, 不替换为黑白灰
 - 公开端滚动用浏览器原生行为, 不做鼠标滚轮 rAF 缓动 (锚点跳转的 `scroll-behavior: smooth` 由 `SmoothScrollScript` 处理, 与整页滚动无关)
 - 后台 (`/admin/*`) 按 CZL 规范走 "灰底浮卡 + 中性深色识别" 风格, 选中态用 accent 浅灰 + 加粗
+- 产品图标单一来源 `docs/design/brand/mark.svg` / `glyph.svg` (拷自 czl-skill `product-logo/`, 不在本仓库改造型), 由同目录 `build-icons.js` + `build-ico.py` 生成 `frontend/public/images/*`、`icon.svg` 与 `src/app/favicon.ico` (命令见脚本头注释); 公开端页头用 `logo-white.svg`, 后台侧栏亮色 `logo.svg` / 暗色 `logo-white.svg`
 
 常用命令 (仓库根目录):
 

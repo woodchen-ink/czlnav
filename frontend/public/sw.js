@@ -63,9 +63,10 @@ self.addEventListener("fetch", (event) => {
   if (
     url.pathname.startsWith("/uploads/") ||
     url.pathname.startsWith("/static/") ||
+    url.pathname.startsWith("/images/") ||
     url.pathname === "/favicon.ico" ||
-    url.pathname === "/logo.png" ||
-    url.pathname === "/logo.svg"
+    url.pathname === "/icon.svg" ||
+    url.pathname === "/manifest.json"
   ) {
     event.respondWith(networkFirst(request, RUNTIME_CACHE));
     return;

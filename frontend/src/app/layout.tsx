@@ -9,6 +9,12 @@ export const metadata: Metadata = {
   title: { absolute: settings.seoTitle || settings.siteName },
   description: settings.seoDescription || settings.siteDescription,
   keywords: settings.seoKeywords || undefined,
+  // favicon.ico 由 app/favicon.ico 约定自动声明; icon.svg 为 16px 小尺寸符号
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: "/images/apple-touch-icon.png",
+  },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({

@@ -18,6 +18,18 @@ import Link from "next/link";
 import React from "react";
 import AdminAppProvider from "@/components/AdminAppProvider";
 
+// 产品完整标志: 亮色主题渐变, 暗色主题白色
+function ProductLogo() {
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element -- 静态导出, 矢量 Logo 无需优化 */}
+      <img src="/images/logo.svg" alt="" width={36} height={32} className="h-8 w-auto dark:hidden" />
+      {/* eslint-disable-next-line @next/next/no-img-element -- 同上 */}
+      <img src="/images/logo-white.svg" alt="" width={36} height={32} className="hidden h-8 w-auto dark:block" />
+    </>
+  );
+}
+
 export default function AdminLayout({
   children,
 }: Readonly<{
@@ -175,22 +187,14 @@ export default function AdminLayout({
         >
           {/* Logo 区域 */}
           <div className="h-16 flex items-center justify-center border-b border-sidebar-border">
-            {collapsed ? (
-              <div className="w-8 h-8 bg-foreground text-background rounded flex items-center justify-center">
-                <span className="font-bold text-sm">{siteName.charAt(0)}</span>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-foreground text-background rounded flex items-center justify-center">
-                  <span className="font-bold text-sm">
-                    {siteName.charAt(0)}
-                  </span>
-                </div>
+            <div className="flex items-center gap-2">
+              <ProductLogo />
+              {!collapsed && (
                 <span className="font-semibold text-lg text-foreground">
                   {siteName} 管理
                 </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* 菜单区域 */}

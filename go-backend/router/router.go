@@ -81,8 +81,9 @@ func New(deps *handler.Deps) http.Handler {
 	}
 
 	r.Get("/favicon.ico", withCache(deps.ServeFrontendAsset, cacheMedium))
-	r.Get("/logo.png", withCache(deps.ServeFrontendAsset, cacheMedium))
-	r.Get("/logo.svg", withCache(deps.ServeFrontendAsset, cacheMedium))
+	r.Get("/icon.svg", withCache(deps.ServeFrontendAsset, cacheMedium))
+	r.Get("/manifest.json", withCache(deps.ServeFrontendAsset, cacheMedium))
+	r.Get("/images/*", withCache(deps.ServeFrontendAsset, cacheMedium))
 
 	// Service Worker 入口: 永不缓存, 由 Go 注入版本号占位符
 	r.Get("/sw.js", deps.ServeServiceWorker)

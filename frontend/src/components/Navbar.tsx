@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Logo from "@/components/Logo"; // 确保Logo组件路径正确
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Settings } from "lucide-react";
@@ -45,11 +44,13 @@ export default function Navbar({ siteName }: NavbarProps) {
               href="/"
               className="text-3xl font-bold text-white flex items-center"
             >
-              <Logo
-                width={40}
+              {/* eslint-disable-next-line @next/next/no-img-element -- 静态导出, 矢量 Logo 无需优化 */}
+              <img
+                src="/images/logo-white.svg"
+                alt=""
+                width={45}
                 height={40}
-                fill="currentColor"
-                className="mr-1.5"
+                className="mr-2 h-10 w-auto"
               />
               <div>{siteName}</div>
             </Link>
